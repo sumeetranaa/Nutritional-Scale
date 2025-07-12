@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutritional Scale</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="main.css" rel="stylesheet" />
+</head>
+
+<body>
+    <script src="main.js"></script>
+    <div class="app-container">
+        <div id="header" class="p-6 flex-shrink-0 bg-white border-b relative">
+            <button onclick="resetForm()"
+                class=" top-6 left-6 bottom-6 hover:text-gray-800 font-medium text-sm">Cancel</button>
+            <h1 class="text-xl font-bold text-center text-gray-800 mb-6">Nutritional Scale Personalization</h1>
+            <!-- Step Indicators -->
+            <div class="flex justify-center items-center space-x-4 sm:space-x-8">
+                <div id="step-indicator-1" class="step-indicator flex flex-col items-center space-y-2 active">
+                    <div
+                        class="step-circle w-12 h-12 rounded-full border-2 border-gray-300 flex items-center justify-center font-bold text-lg text-gray-500">
+                        <span class="step-number">1</span>
+                        <svg class="step-check hidden w-6 h-6 text-white" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                    <p class="step-text text-sm font-medium text-gray-500 text-center">Physical Info</p>
+                </div>
+                <div id="step-indicator-2" class="step-indicator flex flex-col items-center space-y-2">
+                    <div
+                        class="step-circle w-12 h-12 rounded-full border-2 border-gray-300 flex items-center justify-center font-bold text-lg text-gray-500">
+                        <span class="step-number">2</span>
+                        <svg class="step-check hidden w-6 h-6 text-white" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                    <p class="step-text text-sm font-medium text-gray-500 text-center">2-Week Plan</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="form-container" class="relative flex-grow overflow-hidden">
+            <!-- Landing Screen -->
+            <div id="landing-card" class="form-screen flex flex-col items-center justify-between p-6 bg-cover bg-center"
+    style="background-image: url(asset/Frame\ \(1\)-min.png); height: 100vh; overflow: auto;">
+                <div class="flex-grow flex flex-col items-center justify-center text-white">
+                    <!-- Logo SVG -->
+                    <div class="mb-4">
+                        <img class="Logo" src="asset/Logo.svg">
+                    </div>
+                    <p class="text-sm text-center font-medium">Eat like it's designed for you — because it is</p>
+                    <p class="text-4xl font-bold text-center pt-12 pb-12 "> Launching Soon in Delhi</p>
+                </div>
+                
+                <div class="relative bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-xl shadow-lg border border-opacity-30 border-white p-6 flex flex-col justify-center items-center text-white">
+                    <p class="text-2xl text-center font-bold pb-6 text-white font-medium">Till then use our Personalized Meal Plan Generator & Eat Good Food</p>
+                    <p class="text-md text-center text-white align-center font-regular ">While we prepare to launch our full personalized meal delivery service in Delhi, kickstart your health journey with our FREE intelligent meal plan generator. Get instant, custom breakdowns of meals, calories, and essential macros – all perfectly aligned with your unique physique, fitness goals, and daily lifestyle. </p>
+                    <div class="p-6 max-w-md w-full">
+                        <button onclick="navigateTo('age-card')"
+                            class="w-full bg-white text-[var(--primary-color)] font-bold py-4 px-6 rounded-lg text-xl hover:bg-gray-200 transition-colors shadow-lg">
+                            Get Personalized Meal Plan
+                        </button>
+                    </div>
+                    <p class="text-md text-white text-center font-medium">Soon, with this generator we'll also integrate particular meals and precise ingredient quantities with each meal slot to make healthy eating even easier!</p>
+                </div>
+            </div>
+
+            <!-- Screen 1: Age -->
+            <div id="age-card" class="form-screen hidden-right">
+                <div class="flex-grow overflow-y-auto p-6 flex flex-col">
+                    <label class="block text-lg font-medium text-gray-700 mb-2 text-center flex-shrink-0">What is your
+                        age?</label>
+                    <div class="flex-grow flex items-center justify-center">
+                        <input type="number" id="age" name="age" min="1"
+                            class="w-full max-w-xs text-center text-4xl font-bold border-x-0 border-t-0 border-b-2 border-gray-300 focus:border-[var(--primary-color)] focus:ring-0 bg-transparent"
+                            placeholder="25">
+                    </div>
+                    <p id="age-error" class="text-red-500 text-xs mt-1 text-center hidden flex-shrink-0">Please enter a
+                        valid age.</p>
+                </div>
+                <div class="flex-shrink-0 p-6 bg-white border-t">
+                    <div class="max-w-xs mx-auto">
+                        <button onclick="saveStep('age')"
+                            class="w-full bg-[var(--primary-color)] text-white font-bold py-3 px-4 rounded-lg hover:bg-[var(--primary-color-dark)] transition-colors">
+                            Save & Continue
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- All other screens -->
+            <div id="gender-card" class="form-screen hidden-right">
+                <div class="flex-grow overflow-y-auto p-6">
+                    <label class="block text-lg font-medium text-gray-700 mb-4 text-center">What is your gender?</label>
+                    <div class="max-w-xs mx-auto w-full">
+                        <div id="gender-options" class="space-y-3"></div>
+                    </div>
+                </div>
+                <div class="flex-shrink-0 p-6 bg-white border-t">
+                    <p id="gender-error" class="text-red-500 text-xs mb-2 text-center hidden">Please select an option.
+                    </p>
+                    <div class="max-w-xs mx-auto w-full flex space-x-4">
+                        <button onclick="goBack('gender')"
+                            class="w-1/3 bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-300">Back</button>
+                        <button onclick="saveStep('gender')"
+                            class="w-2/3 bg-[var(--primary-color)] text-white font-bold py-3 px-4 rounded-lg hover:bg-[var(--primary-color-dark)]">Save
+                            & Continue</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="weight-card" class="form-screen hidden-right">
+                <div class="flex-grow overflow-y-auto p-6 flex flex-col">
+                    <label class="block text-lg font-medium text-gray-700 mb-2 text-center flex-shrink-0">What is your
+                        weight? (in kg)</label>
+                    <div class="flex-grow flex items-center justify-center">
+                        <input type="number" id="weight" name="weight" step="0.1" min="1"
+                            class="w-full max-w-xs text-center text-4xl font-bold border-x-0 border-t-0 border-b-2 border-gray-300 focus:border-[var(--primary-color)] focus:ring-0 bg-transparent"
+                            placeholder="70.5">
+                    </div>
+                    <p id="weight-error" class="text-red-500 text-xs mt-1 text-center hidden flex-shrink-0">Please enter
+                        a valid weight.</p>
+                </div>
+                <div class="flex-shrink-0 p-6 bg-white border-t">
+                    <div class="max-w-xs mx-auto w-full flex space-x-4">
+                        <button onclick="goBack('weight')"
+                            class="w-1/3 bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-300">Back</button>
+                        <button onclick="saveStep('weight')"
+                            class="w-2/3 bg-[var(--primary-color)] text-white font-bold py-3 px-4 rounded-lg hover:bg-[var(--primary-color-dark)]">Save
+                            & Continue</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="height-card" class="form-screen hidden-right">
+                <div class="flex-grow overflow-y-auto p-6 flex flex-col">
+                    <label class="block text-lg font-medium text-gray-700 mb-2 text-center flex-shrink-0">What is your
+                        height? (in cm)</label>
+                    <div class="flex-grow flex items-center justify-center">
+                        <input type="number" id="height" name="height" min="1"
+                            class="w-full max-w-xs text-center text-4xl font-bold border-x-0 border-t-0 border-b-2 border-gray-300 focus:border-[var(--primary-color)] focus:ring-0 bg-transparent"
+                            placeholder="175">
+                    </div>
+                    <p id="height-error" class="text-red-500 text-xs mt-1 text-center hidden flex-shrink-0">Please enter
+                        a valid height.</p>
+                </div>
+                <div class="flex-shrink-0 p-6 bg-white border-t">
+                    <div class="max-w-xs mx-auto w-full flex space-x-4">
+                        <button onclick="goBack('height')"
+                            class="w-1/3 bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-300">Back</button>
+                        <button onclick="saveStep('height')"
+                            class="w-2/3 bg-[var(--primary-color)] text-white font-bold py-3 px-4 rounded-lg hover:bg-[var(--primary-color-dark)]">Save
+                            & Continue</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="goal-card" class="form-screen hidden-right">
+                <div class="flex-grow overflow-y-auto p-6">
+                    <label class="block text-lg font-medium text-gray-700 mb-4 text-center">What is your primary 2-week
+                        goal?</label>
+                    <div id="goal-options" class="py-4 px-2">
+                        <!-- Goal cards will be injected here by JavaScript -->
+                    </div>
+                </div>
+                <div class="flex-shrink-0 p-6 bg-white border-t">
+                    <p id="goal-error" class="text-red-500 text-xs mb-2 text-center hidden">Please select a goal.</p>
+                    <div class="max-w-xs mx-auto w-full flex space-x-4">
+                        <button onclick="goBack('goal')"
+                            class="w-1/3 bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-300">Back</button>
+                        <button onclick="saveStep('goal')"
+                            class="w-2/3 bg-[var(--primary-color)] text-white font-bold py-3 px-4 rounded-lg hover:bg-[var(--primary-color-dark)]">Save
+                            & Continue</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="activityStyle-card" class="form-screen hidden-right">
+                <div class="flex-grow overflow-y-auto p-6">
+                    <label class="block text-lg font-medium text-gray-700 mb-4 text-center">What's your physical
+                        activity style?</label>
+                    <div id="activityStyle-options" class="py-4 px-2">
+                        <!-- Activity Style cards will be injected here -->
+                    </div>
+                </div>
+                <div class="flex-shrink-0 p-6 bg-white border-t">
+                    <p id="activityStyle-error" class="text-red-500 text-xs mb-2 text-center hidden">Please select a
+                        style.</p>
+                    <div class="max-w-xs mx-auto w-full flex space-x-4">
+                        <button onclick="goBack('activityStyle')"
+                            class="w-1/3 bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-300">Back</button>
+                        <button onclick="saveStep('activityStyle')"
+                            class="w-2/3 bg-[var(--primary-color)] text-white font-bold py-3 px-4 rounded-lg hover:bg-[var(--primary-color-dark)]">Save
+                            & Continue</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="activityFrequency-card" class="form-screen hidden-right">
+                <div id="activityFrequency-content" class="flex-grow overflow-y-auto p-6 flex flex-col">
+                    <!-- content injected by JS -->
+                </div>
+                <div class="flex-shrink-0 p-6 bg-white border-t">
+                    <p id="activityFrequency-error" class="text-red-500 text-xs mb-2 text-center hidden">Please make a
+                        selection.</p>
+                    <div class="max-w-xs mx-auto w-full flex space-x-4">
+                        <button onclick="goBack('activityFrequency')"
+                            class="w-1/3 bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-300">Back</button>
+                        <button onclick="saveStep('activityFrequency')"
+                            class="w-2/3 bg-[var(--primary-color)] text-white font-bold py-3 px-4 rounded-lg hover:bg-[var(--primary-color-dark)]">Save
+                            & Continue</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="activityIntensity-card" class="form-screen hidden-right">
+                <div class="flex-grow overflow-y-auto p-6">
+                    <label class="block text-lg font-medium text-gray-700 mb-4 text-center">Select your activity
+                        intensity</label>
+                    <div id="activityIntensity-options" class="py-4 px-2">
+                        <!-- Activity Intensity cards will be injected here -->
+                    </div>
+                </div>
+                <div class="flex-shrink-0 p-6 bg-white border-t">
+                    <p id="activityIntensity-error" class="text-red-500 text-xs mb-2 text-center hidden">Please select
+                        an intensity.</p>
+                    <div class="max-w-xs mx-auto w-full flex space-x-4">
+                        <button onclick="goBack('activityIntensity')"
+                            class="w-1/3 bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-300">Back</button>
+                        <button onclick="saveStep('activityIntensity')"
+                            class="w-2/3 bg-[var(--primary-color)] text-white font-bold py-3 px-4 rounded-lg hover:bg-[var(--primary-color-dark)]">Save
+                            & Continue</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="workoutTiming-card" class="form-screen hidden-right">
+                <div class="flex-grow overflow-y-auto p-6">
+                    <label class="block text-lg font-medium text-gray-700 mb-4 text-center">When do you usually work
+                        out?</label>
+                    <div class="max-w-xs mx-auto w-full">
+                        <div id="workoutTiming-options" class="space-y-3"></div>
+                    </div>
+                </div>
+                <div class="flex-shrink-0 p-6 bg-white border-t">
+                    <p id="workoutTiming-error" class="text-red-500 text-xs mb-2 text-center hidden">Please select a
+                        time.</p>
+                    <div class="max-w-xs mx-auto w-full flex space-x-4">
+                        <button onclick="goBack('workoutTiming')"
+                            class="w-1/3 bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-300">Back</button>
+                        <button onclick="saveStep('workoutTiming')"
+                            class="w-2/3 bg-[var(--primary-color)] text-white font-bold py-3 px-4 rounded-lg hover:bg-[var(--primary-color-dark)]">Save
+                            & Continue</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="diet-card" class="form-screen hidden-right">
+                <div class="flex-grow overflow-y-auto p-6">
+                    <label class="block text-lg font-medium text-gray-700 mb-4 text-center">Any dietary
+                        preferences?</label>
+                    <div class="max-w-xs mx-auto w-full">
+                        <div id="diet-options" class="space-y-3"></div>
+                    </div>
+                    <div
+                        class="mt-4 p-3 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 text-xs max-w-xs mx-auto w-full">
+                        <p><strong>Disclaimer:</strong> If you have medical conditions, consult a professional.</p>
+                    </div>
+                </div>
+                <div class="flex-shrink-0 p-6 bg-white border-t">
+                    <p id="diet-error" class="text-red-500 text-xs mb-2 text-center hidden">Please select an option.</p>
+                    <div class="max-w-xs mx-auto w-full flex space-x-4">
+                        <button onclick="goBack('diet')"
+                            class="w-1/3 bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-300">Back</button>
+                        <button onclick="saveStep('diet')"
+                            class="w-2/3 bg-[var(--primary-color)] text-white font-bold py-3 px-4 rounded-lg hover:bg-[var(--primary-color-dark)]">Finish</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Confirmation Screen -->
+            <div id="summary-card" class="form-screen hidden-right">
+                <div class="flex-grow overflow-y-auto p-6">
+                    <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">Confirmation Screen</h2>
+                    <p class="text-center text-gray-500 mb-6">Please review your information before we calculate your
+                        plan.</p>
+                    <div class="max-w-md mx-auto w-full space-y-4 text-gray-700">
+                        <div class="border rounded-lg p-4">
+                            <h3 class="font-semibold mb-2 text-lg text-[var(--primary-color)]">Physical Info</h3>
+                            <div class="flex justify-between items-center py-1">
+                                <p><strong>Age:</strong> <span id="summary-age"></span></p><button
+                                    onclick="editStep('age')" class="text-sm text-primary hover:underline">Edit</button>
+                            </div>
+                            <div class="flex justify-between items-center py-1">
+                                <p><strong>Gender:</strong> <span id="summary-gender"></span></p><button
+                                    onclick="editStep('gender')"
+                                    class="text-sm text-primary hover:underline">Edit</button>
+                            </div>
+                            <div class="flex justify-between items-center py-1">
+                                <p><strong>Weight:</strong> <span id="summary-weight"></span> kg</p><button
+                                    onclick="editStep('weight')"
+                                    class="text-sm text-primary hover:underline">Edit</button>
+                            </div>
+                            <div class="flex justify-between items-center py-1">
+                                <p><strong>Height:</strong> <span id="summary-height"></span> cm</p><button
+                                    onclick="editStep('height')"
+                                    class="text-sm text-primary hover:underline">Edit</button>
+                            </div>
+                        </div>
+                        <div class="border rounded-lg p-4">
+                            <h3 class="font-semibold mb-2 text-lg text-[var(--primary-color)]">Next 2 Week Choices</h3>
+                            <div class="flex justify-between items-center py-1">
+                                <p><strong>Goal:</strong> <span id="summary-goal"></span></p><button
+                                    onclick="editStep('goal')"
+                                    class="text-sm text-primary hover:underline">Edit</button>
+                            </div>
+                            <div class="flex justify-between items-center py-1">
+                                <p><strong>Activity Style:</strong> <span id="summary-activityStyle"></span></p><button
+                                    onclick="editStep('activityStyle')"
+                                    class="text-sm text-primary hover:underline">Edit</button>
+                            </div>
+                            <div id="summary-activityFrequency-container"
+                                class="flex justify-between items-center py-1">
+                                <p><strong>Frequency:</strong> <span id="summary-activityFrequency"></span></p><button
+                                    onclick="editStep('activityFrequency')"
+                                    class="text-sm text-primary hover:underline">Edit</button>
+                            </div>
+                            <div id="summary-activityIntensity-container"
+                                class="flex justify-between items-center py-1">
+                                <p><strong>Intensity:</strong> <span id="summary-activityIntensity"></span></p><button
+                                    onclick="editStep('activityIntensity')"
+                                    class="text-sm text-primary hover:underline">Edit</button>
+                            </div>
+                            <div id="summary-workoutTiming-container" class="flex justify-between items-center py-1">
+                                <p><strong>Workout Time:</strong> <span id="summary-workoutTiming"></span></p><button
+                                    onclick="editStep('workoutTiming')"
+                                    class="text-sm text-primary hover:underline">Edit</button>
+                            </div>
+                            <div class="flex justify-between items-center py-1">
+                                <p><strong>Dietary Preference:</strong> <span id="summary-diet"></span></p><button
+                                    onclick="editStep('diet')"
+                                    class="text-sm text-primary hover:underline">Edit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-shrink-0 p-6 bg-white border-t">
+                    <div class="max-w-xs mx-auto w-full flex space-x-4">
+                        <button onclick="goBack('summary')"
+                            class="w-1/3 bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-300">Back</button>
+                        <button onclick="calculateDailyTargets()"
+                            class="w-2/3 bg-[var(--primary-color)] text-white font-bold py-3 px-4 rounded-lg hover:bg-[var(--primary-color-dark)]">Submit
+                            & View Plan</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Screen -->
+            <div id="loading-card" class="form-screen hidden-right items-center justify-center text-center">
+                <div class="loader"></div>
+                <p class="text-lg font-medium text-gray-700 mt-4">Calculating your personalized plan...</p>
+            </div>
+
+            <!-- Meal Plan Screen -->
+            <div id="meal-plan-card" class="form-screen hidden-right !p-0 flex-col lg:flex-row lg:gap-6 bg-gray-50">
+                <!-- Left Panel: Profile Summary -->
+                <div id="profile-summary-panel"
+                    class="w-full lg:w-1/4 lg:max-w-xs flex-shrink-0 bg-white p-6 shadow-sm overflow-y-auto">
+                    <!-- Profile and calculation content will be injected here -->
+                </div>
+
+                <!-- Right Panel: Plan Details -->
+                <div class="flex-grow flex flex-col p-6 lg:p-0 lg:pr-6 lg:pt-6 overflow-y-auto relative">
+                    <div id="plan-header" class="mb-4">
+                        <!-- Dynamic title and messages will be injected here -->
+                    </div>
+                    <div id="meal-plan-list" class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4 pb-24">
+                        <!-- Day cards will be injected here -->
+                    </div>
+                </div>
+                <!-- Floating Buttons for Final Screen -->
+                <div id="floating-buttons"
+                    class="hidden fixed bottom-0 left-0 right-0 p-4 bg-transparent z-20 pointer-events-none">
+                    <div class="w-full grid grid-cols-1 lg:grid-cols-4 lg:gap-6">
+                        <div class="lg:col-span-1"></div> <!-- Spacer for left panel -->
+                        <div class="lg:col-span-3 flex justify-center pointer-events-auto">
+                            <div class="flex space-x-4">
+                                <button onclick="openSavePlanModal()"
+                                    class="bg-blue-600 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:bg-blue-700 transition-transform hover:scale-105">
+                                    Save My Plan
+                                </button>
+                                <button onclick="resetForm()"
+                                    class="bg-gray-700 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:bg-gray-800 transition-transform hover:scale-105">
+                                    Start Over
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Meal Detail Modal -->
+    <div id="meal-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modal-title" class="text-xl font-bold">Meal Details</h3>
+                <button onclick="closeMealModal()" class="text-gray-500 hover:text-gray-800">&times;</button>
+            </div>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- Save Plan Modal -->
+    <div id="save-plan-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Save & Download Plan</h3>
+                <button onclick="closeSavePlanModal()" class="text-gray-500 hover:text-gray-800">&times;</button>
+            </div>
+            <div id="save-plan-form" class="space-y-4">
+                <div>
+                    <label for="user-name" class="block text-sm font-medium text-gray-700">Name</label>
+                    <input type="text" id="user-name"
+                        class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                        placeholder="John Doe">
+                </div>
+                <div>
+                    <label for="user-email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="user-email"
+                        class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                        placeholder="you@example.com">
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg border-l-4 border-yellow-500">
+                    <p class="text-sm font-semibold text-gray-800 mb-3">
+                        Are you interested in a service where we deliver all the meals from this plan — tailored to your
+                        calories and macros — freshly prepared to your doorstep?
+                    </p>
+                    <div id="delivery-interest-options" class="grid grid-cols-2 gap-3">
+                        <div data-value="Yes"
+                            class="delivery-option-card border-2 border-gray-200 rounded-lg p-3 text-center">
+                            <span class="font-bold text-lg">Yes!</span>
+                            <p class="text-xs text-gray-500">I'm interested.</p>
+                        </div>
+                        <div data-value="No"
+                            class="delivery-option-card border-2 border-gray-200 rounded-lg p-3 text-center">
+                            <span class="font-bold text-lg">No</span>
+                            <p class="text-xs text-gray-500">I'll cook myself.</p>
+                        </div>
+                    </div>
+                    <input type="radio" name="delivery-interest" id="delivery-yes" value="Yes" class="hidden">
+                    <input type="radio" name="delivery-interest" id="delivery-no" value="No" class="hidden">
+                </div>
+                <button id="download-pdf-btn" onclick="downloadMealPlanPDF()"
+                    class="w-full bg-[#008000] text-white font-bold py-3 px-4 rounded-lg hover:bg-[#006400] disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    disabled>
+                    Download PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const { jsPDF } = window.jspdf;
+        const userData = { age: null, gender: null, weight: null, height: null, goal: null, activityStyle: null, activityFrequency: null, activityDays: [], activityIntensity: null, workoutTiming: null, diet: null };
+        const calculationResults = { bmr: 0, tdeeMultiplier: '', calorieAdjustment: 0, macroRatio: {}, dailyPlan: [], mealPlan: [] };
+        // Added 'landing' to the cardSequence
+        const cardSequence = ['landing', 'age', 'gender', 'weight', 'height', 'goal', 'activityStyle', 'activityFrequency', 'activityIntensity', 'workoutTiming', 'diet', 'summary', 'loading', 'meal-plan'];
+        let currentScreenId = 'landing-card'; // Initial screen is now the landing page
+        let isEditing = false;
+
+        const options = {
+            gender: ["Male", "Female"],
+            goal: [
+                {
+                    title: "Weight Loss",
+                    description: "Reduce body fat and achieve a healthier, leaner physique.",
+                    focus: "Calorie deficit through a balanced meals - covering all valuable nutrition."
+                },
+                {
+                    title: "Weight Gain",
+                    description: "Increase muscle mass and build greater strength.",
+                    focus: "Calorie surplus with protein-rich meals - covering all valuable nutrition."
+                },
+                {
+                    title: "Maintenance",
+                    description: "Build some muscle and loose some fat at current weight.",
+                    focus: "Balanced intake to meet your energy needs - covering all valuable nutrition."
+                }
+            ],
+            activityStyle: [
+                {
+                    title: "Dedicated Routine",
+                    description: "Have a proper timing for gym or specific training with pre & post workout meals.",
+                    goodFor: [
+                        "Improving Overall Health",
+                        "Effectively achieving fitness goals like building muscle mass, strength, endurance, and lose more fat in best way."
+                    ]
+                },
+                {
+                    title: "Casual Activity",
+                    description: "Engage in gym or sports (cricket, badminton, etc.) or yoga / cardio / running etc when time allows.",
+                    goodFor: [
+                        "Improving Overall Health",
+                        "Gradually growing in your fitness journey while managing a stressful busy lifestyle."
+                    ]
+                },
+                {
+                    title: "Light Activity",
+                    description: "Involves in light physical activities like walking, gentle yoga, or light stretching for 20-30 minutes a day.",
+                    goodFor: [
+                        "Gradually Improving Overall Health",
+                        "Staying Active, Improving Mobility while managing a stressful busy lifestyle."
+                    ]
+                }
+            ],
+            activityIntensity: [
+                {
+                    title: "High Intensity",
+                    weightTraining: "Lifting heavy weights / Using machines at high settings (feel challenging for 6-8 repetitions).",
+                    cardio: "Very intense activities like sprinting, fast running, or high-intensity interval training (HIIT).",
+                    sports: "Playing competitive sports (like a serious game of football or Boxing Training).",
+                    rest: "Very short rest periods between sets.",
+                    speakingAbility: "Breathing is very heavy. You can likely only manage a few words at a time."
+                },
+                {
+                    title: "Moderate Intensity",
+                    weightTraining: "Lifting moderate weights / Using machines at medium settings (feel challenging for 10-12 repetitions).",
+                    cardio: "Activities like brisk walking, jogging at a conversational pace, or moderately paced cycling.",
+                    sports: "Playing friendly sports with consistent movement (like a casual game of badminton, table tennis, or volleyball).",
+                    rest: "Moderate rest periods between sets.",
+                    speakingAbility: "You can speak in short sentences comfortably, but will need to pause to catch your breath."
+                },
+                {
+                    title: "Low Intensity",
+                    weightTraining: "Lifting light weights / Using machines at low settings (can go for 15+ repetitions).",
+                    cardio: "Relaxed walking, leisurely cycling, or very light activity.",
+                    sports: "Leisurely activities like a slow walk, gentle stretching, gentle yoga or Pilates.",
+                    rest: "Longer rest periods between sets.",
+                    speakingAbility: "You can easily hold a full conversation without feeling winded."
+                }
+            ],
+            workoutTiming: ["Morning", "Evening"],
+            diet: ["No Preference", "Vegetarian", "Vegan", "Gluten-Free", "Dairy-Free"]
+        };
+
+        function createCustomSelect(key, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (key === 'goal' || key === 'activityStyle' || key === 'activityIntensity') {
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4';
+                options[key].forEach(option => {
+                    const card = document.createElement('div');
+                    card.className = 'selection-card border-2 border-gray-200 rounded-lg p-4 text-left h-full flex flex-col';
+                    card.dataset.value = option.title;
+                    card.onclick = () => {
+                        container.querySelectorAll('.selection-card').forEach(c => c.classList.remove('selected'));
+                        card.classList.add('selected');
+                        userData[key] = option.title;
+                    };
+
+                    let contentHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg">${option.title}</h3>
+                            <div class="radio-circle-outer w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                                <div class="radio-circle-inner w-3 h-3 rounded-full bg-primary"></div>
+                            </div>
+                        </div>`;
+
+                    if (key === 'goal') {
+                        contentHTML += `<p class="text-sm text-gray-500 mb-4 flex-grow">${option.description}</p>
+                        <div class="text-sm p-3 bg-gray-50 rounded-md mt-auto">
+                            <p class="font-semibold flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 inline-block text-primary" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" /><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" /></svg>
+                                Plan Focus on
+                            </p>
+                            <p class="text-gray-600 mt-1">${option.focus}</p>
+                        </div>`;
+                    } else if (key === 'activityStyle') {
+                        contentHTML += `<p class="text-sm text-gray-500 mb-4 flex-grow">${option.description}</p>
+                         <div class="text-sm p-3 bg-gray-50 rounded-md mt-auto">
+                            <p class="font-semibold flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 inline-block text-primary" viewBox="0 0 20 20" fill="currentColor"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.562 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.865.802V10.5z" /></svg>
+                                Good For
+                            </p>
+                            <ul class="text-gray-600 mt-1 list-disc list-inside pl-2 space-y-1">${option.goodFor.map(item => `<li>${item}</li>`).join('')}</ul>
+                        </div>`;
+                    } else if (key === 'activityIntensity') {
+                        contentHTML += `
+                        <div class="text-sm text-gray-600 space-y-3 flex-grow">
+                            <p><strong class="font-semibold text-gray-700">Weight Training:</strong> ${option.weightTraining}</p>
+                            <p><strong class="font-semibold text-gray-700">Cardio:</strong> ${option.cardio}</p>
+                            <p><strong class="font-semibold text-gray-700">Sports/Activities:</strong> ${option.sports}</p>
+                            <p><strong class="font-semibold text-gray-700">Rest:</strong> ${option.rest}</p>
+                        </div>
+                        <div class="text-sm p-3 bg-gray-50 rounded-md mt-4">
+                            <p class="font-semibold flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 inline-block text-primary" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z" clip-rule="evenodd" /></svg>
+                                Speaking Ability at End
+                            </p>
+                            <p class="text-gray-600 mt-1">${option.speakingAbility}</p>
+                        </div>`;
+                    }
+                    card.innerHTML = contentHTML;
+                    grid.appendChild(card);
+                });
+                container.appendChild(grid);
+            } else {
+                options[key].forEach(optionValue => {
+                    const button = document.createElement('button');
+                    button.textContent = optionValue;
+                    button.dataset.value = optionValue;
+                    button.className = 'custom-select-option w-full text-center text-lg p-3 border-2 border-gray-200 rounded-lg';
+                    button.onclick = () => {
+                        userData[key] = optionValue;
+                        container.querySelectorAll('button').forEach(btn => btn.classList.remove('selected'));
+                        button.classList.add('selected');
+                    };
+                    container.appendChild(button);
+                });
+            }
+        }
+
+        function handleActivityStyleChange() {
+            userData.activityStyle = document.querySelector('#activityStyle-options .selected')?.dataset.value;
+            const frequencyContent = document.getElementById('activityFrequency-content');
+            let content = '';
+
+            if (userData.activityStyle === 'Dedicated Routine') {
+                if (userData.activityDays.length === 0) {
+                    const today = new Date();
+                    for (let i = 0; i < 14; i++) {
+                        const futureDate = new Date();
+                        futureDate.setDate(today.getDate() + i);
+                        const dayOfWeek = futureDate.getDay();
+                        if (dayOfWeek !== 0 && dayOfWeek !== 6) { userData.activityDays.push(i + 1); }
+                    }
+                }
+                content = `<label class="block text-lg font-medium text-gray-700 mb-4 text-center flex-shrink-0">Toggle your active/rest days.</label><div class="max-w-lg mx-auto w-full space-y-3">`;
+                const today = new Date();
+                const monthFormatter = new Intl.DateTimeFormat('en-US', { month: 'short' });
+                const dayFormatter = new Intl.DateTimeFormat('en-US', { weekday: 'short' });
+                for (let i = 0; i < 14; i++) {
+                    const futureDate = new Date();
+                    futureDate.setDate(today.getDate() + i);
+                    const dateString = `${monthFormatter.format(futureDate)} ${futureDate.getDate()}`;
+                    const dayString = dayFormatter.format(futureDate);
+                    const dayNumber = i + 1;
+                    const isActive = userData.activityDays.includes(dayNumber);
+                    content += `<div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm"><div><span class="font-semibold">${dateString}</span><span class="text-gray-500 ml-2">${dayString}</span></div><label for="day-toggle-${dayNumber}" class="flex items-center cursor-pointer"><span class="rest-text mr-3 text-sm font-medium ${!isActive ? 'text-primary' : 'text-muted'}">Rest</span><div class="relative"><input type="checkbox" id="day-toggle-${dayNumber}" class="sr-only peer" ${isActive ? 'checked' : ''} onchange="toggleDayState(${dayNumber}, this.checked)"><div class="w-14 h-8 rounded-full bg-gray-300 peer-checked:bg-[var(--primary-color)] transition-colors"></div><div class="absolute top-1 left-1 w-6 h-6 rounded-full bg-white transition-transform peer-checked:translate-x-6"></div></div><span class="active-text ml-3 text-sm font-medium ${isActive ? 'text-primary' : 'text-muted'}">Active</span></label></div>`;
+                }
+                content += `</div>`;
+            } else if (userData.activityStyle === 'Casual Activity') {
+                const sessionValue = userData.activityFrequency || '';
+                content = `<div class="flex-grow flex flex-col justify-center"><label for="casual-sessions" class="block text-lg font-medium text-gray-700 mb-2 text-center">How many sessions in 14 days?</label><input type="number" id="casual-sessions" min="1" value="${sessionValue}" class="w-full max-w-xs mx-auto text-center text-4xl font-bold border-x-0 border-t-0 border-b-2 border-gray-300 focus:border-[var(--primary-color)] focus:ring-0 bg-transparent" placeholder="4"></div>`;
+            }
+            frequencyContent.innerHTML = content;
+        }
+
+        function toggleDayState(dayNumber, isActive) {
+            const dayIndex = userData.activityDays.indexOf(dayNumber);
+            if (isActive) {
+                if (dayIndex === -1) userData.activityDays.push(dayNumber);
+            } else {
+                if (dayIndex > -1) userData.activityDays.splice(dayIndex, 1);
+            }
+            userData.activityDays.sort((a, b) => a - b);
+            const label = document.getElementById(`day-toggle-${dayNumber}`).closest('label');
+            const restText = label.querySelector('.rest-text');
+            const activeText = label.querySelector('.active-text');
+            restText.classList.toggle('text-primary', !isActive);
+            restText.classList.toggle('text-muted', isActive);
+            activeText.classList.toggle('text-primary', isActive);
+            activeText.classList.toggle('text-muted', !isActive);
+        }
+
+        function navigateTo(screenId) {
+            const oldScreenId = currentScreenId;
+            currentScreenId = screenId;
+
+            // Apply hide class to the old screen
+            document.getElementById(oldScreenId).classList.add(cardSequence.indexOf(oldScreenId.replace('-card', '')) < cardSequence.indexOf(screenId.replace('-card', '')) ? 'hidden-left' : 'hidden-right');
+            // Remove hide classes from the new screen
+            document.getElementById(screenId).classList.remove('hidden-left', 'hidden-right');
+
+            updateStepIndicators();
+
+            const floatingButtons = document.getElementById('floating-buttons');
+            if (screenId === 'meal-plan-card') {
+                floatingButtons.classList.remove('hidden');
+            } else {
+                floatingButtons.classList.add('hidden');
+            }
+        }
+
+        function saveStep(stepName) {
+            const errorElement = document.getElementById(`${stepName}-error`);
+            let value;
+            let isValid = true;
+
+            if (['gender', 'activityStyle', 'activityIntensity', 'workoutTiming', 'diet', 'goal'].includes(stepName)) {
+                value = userData[stepName];
+                if (!value) isValid = false;
+            } else if (stepName === 'activityFrequency') {
+                const style = userData.activityStyle;
+                if (style === 'Dedicated Routine') {
+                    if (userData.activityDays.length === 0) isValid = false;
+                } else if (style === 'Casual Activity') {
+                    const input = document.getElementById('casual-sessions');
+                    value = input.value;
+                    if (!value || value <= 0 || value > 14) {
+                        isValid = false;
+                        errorElement.textContent = "Please enter a number between 1 and 14.";
+                    } else { userData.activityFrequency = value; }
+                }
+            } else {
+                const inputElement = document.getElementById(stepName);
+                value = inputElement.value;
+                if (!value || (inputElement.type === 'number' && value <= 0)) { isValid = false; }
+                else { userData[stepName] = value; }
+            }
+
+            if (!isValid) {
+                if (errorElement) errorElement.classList.remove('hidden');
+                return;
+            } else if (errorElement) { errorElement.classList.add('hidden'); }
+
+            if (isEditing) {
+                isEditing = false;
+                showSummary();
+                return;
+            }
+
+            if (stepName === 'diet') {
+                showSummary();
+                return;
+            }
+
+            const stepMap = { age: 'gender-card', gender: 'weight-card', weight: 'height-card', height: 'goal-card', goal: 'activityStyle-card', activityStyle: (userData.activityStyle === 'Light Activity' ? 'diet-card' : 'activityFrequency-card'), activityFrequency: 'activityIntensity-card', activityIntensity: (userData.activityStyle === 'Dedicated Routine' ? 'workoutTiming-card' : 'diet-card'), workoutTiming: 'diet-card' };
+            if (stepName === 'activityStyle') handleActivityStyleChange();
+            navigateTo(stepMap[stepName]);
+        }
+
+        function goBack(currentStepName) {
+            // Added 'landing-card' to the backMap for the age screen
+            const backMap = { age: 'landing-card', gender: 'age-card', weight: 'gender-card', height: 'weight-card', goal: 'height-card', activityStyle: 'goal-card', activityFrequency: 'activityStyle-card', activityIntensity: 'activityFrequency-card', workoutTiming: 'activityIntensity-card', diet: (userData.activityStyle === 'Dedicated Routine' ? 'workoutTiming-card' : (userData.activityStyle === 'Light Activity' ? 'activityStyle-card' : 'activityIntensity-card')), summary: 'diet-card' };
+            navigateTo(backMap[currentStepName]);
+        }
+
+        function editStep(stepNameToEdit) {
+            isEditing = true;
+            if (stepNameToEdit === 'activityFrequency') { handleActivityStyleChange(); }
+            navigateTo(`${stepNameToEdit}-card`);
+        }
+
+        function showSummary() {
+            document.getElementById('summary-age').textContent = userData.age;
+            document.getElementById('summary-gender').textContent = userData.gender;
+            document.getElementById('summary-weight').textContent = userData.weight;
+            document.getElementById('summary-height').textContent = userData.height;
+            document.getElementById('summary-goal').textContent = userData.goal;
+            document.getElementById('summary-activityStyle').textContent = userData.activityStyle;
+            document.getElementById('summary-diet').textContent = userData.diet;
+
+            const freqContainer = document.getElementById('summary-activityFrequency-container');
+            const intensityContainer = document.getElementById('summary-activityIntensity-container');
+            const timingContainer = document.getElementById('summary-workoutTiming-container');
+
+            if (userData.activityStyle === 'Light Activity') {
+                [freqContainer, intensityContainer, timingContainer].forEach(el => el.style.display = 'none');
+            } else if (userData.activityStyle === 'Casual Activity') {
+                freqContainer.style.display = 'flex';
+                intensityContainer.style.display = 'flex';
+                timingContainer.style.display = 'none';
+                document.getElementById('summary-activityFrequency').textContent = `${userData.activityFrequency} sessions`;
+                document.getElementById('summary-activityIntensity').textContent = userData.activityIntensity;
+            } else { // Dedicated
+                [freqContainer, intensityContainer, timingContainer].forEach(el => el.style.display = 'flex');
+                document.getElementById('summary-activityFrequency').textContent = `${userData.activityDays.length} active days`;
+                document.getElementById('summary-activityIntensity').textContent = userData.activityIntensity;
+                document.getElementById('summary-workoutTiming').textContent = userData.workoutTiming;
+            }
+            navigateTo('summary-card');
+        }
+
+        function updateStepIndicators() {
+            const step1 = document.getElementById('step-indicator-1');
+            const step2 = document.getElementById('step-indicator-2');
+            const currentStepIndex = cardSequence.indexOf(currentScreenId.replace('-card', ''));
+            const goalIndex = cardSequence.indexOf('goal');
+            const summaryIndex = cardSequence.indexOf('summary');
+
+            [step1, step2].forEach(s => s.classList.remove('active', 'complete'));
+            // Hide header and step indicators on landing and final screens
+            document.getElementById('header').style.display = (currentScreenId.includes('landing') || currentScreenId.includes('meal-plan') || currentScreenId.includes('loading')) ? 'none' : 'block';
+
+            if (currentStepIndex < goalIndex) {
+                step1.classList.add('active');
+            } else if (currentStepIndex >= goalIndex && currentStepIndex < summaryIndex) {
+                step1.classList.add('complete');
+                step2.classList.add('active');
+            } else if (currentStepIndex >= summaryIndex) {
+                step1.classList.add('complete');
+                step2.classList.add('complete');
+            }
+            document.querySelectorAll('.step-indicator').forEach(indicator => {
+                const number = indicator.querySelector('.step-number');
+                const check = indicator.querySelector('.step-check');
+                if (indicator.classList.contains('complete')) {
+                    number.classList.add('hidden');
+                    check.classList.remove('hidden');
+                } else {
+                    number.classList.remove('hidden');
+                    check.classList.add('hidden');
+                }
+            });
+        }
+
+        function calculateDailyTargets() {
+            navigateTo('loading-card');
+
+            const { age, gender, weight, height, goal, activityStyle, activityDays, activityFrequency, activityIntensity } = userData;
+
+            let bmr;
+            if (gender === 'Male') {
+                bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+            } else {
+                bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+            }
+            calculationResults.bmr = Math.round(bmr);
+
+            const tdeeMultipliers = { "High Intensity": 1.9, "Moderate Intensity": 1.7, "Low Intensity": 1.5 };
+            const dailyTDEEs = [];
+
+            if (activityStyle === 'Dedicated Routine') {
+                const intensityMultiplier = tdeeMultipliers[activityIntensity];
+                calculationResults.tdeeMultiplier = `Active: ${intensityMultiplier}x, Rest: 1.3x`;
+                for (let i = 1; i <= 14; i++) {
+                    const multiplier = activityDays.includes(i) ? intensityMultiplier : 1.3;
+                    dailyTDEEs.push(bmr * multiplier);
+                }
+            } else {
+                let avgMultiplier = 1.3;
+                if (activityStyle === 'Casual Activity') {
+                    const activeDaysCount = parseInt(activityFrequency);
+                    const restDaysCount = 14 - activeDaysCount;
+                    const intensityMultiplier = { "High Intensity": 1.8, "Moderate Intensity": 1.6, "Low Intensity": 1.4 }[activityIntensity];
+                    avgMultiplier = ((intensityMultiplier * activeDaysCount) + (1.3 * restDaysCount)) / 14;
+                }
+                calculationResults.tdeeMultiplier = `~${avgMultiplier.toFixed(2)}x (Avg)`;
+                for (let i = 0; i < 14; i++) {
+                    dailyTDEEs.push(bmr * avgMultiplier);
+                }
+            }
+
+            const goalAdjustments = { "Weight Loss": -700, "Weight Gain": 700, "Maintenance": 0 };
+            const calorieAdjustment = goalAdjustments[goal];
+            calculationResults.calorieAdjustment = calorieAdjustment;
+            const dailyCalories = dailyTDEEs.map(tdee => tdee + calorieAdjustment);
+
+            // Updated Macro Ratios. Carbs/Fats were adjusted to make room for 5% "Other" nutrients.
+            const macroRatios = {
+                "Weight Loss": { p: 0.30, c: 0.40, f: 0.25, o: 0.05 }, // Renamed from Fat Loss
+                "Weight Gain": { p: 0.20, c: 0.50, f: 0.25, o: 0.05 }, // Renamed from Muscle Gain, adjusted C from 0.55
+                "Maintenance": { p: 0.25, c: 0.40, f: 0.30, o: 0.05 }  // Adjusted C from 0.45
+            };
+            const goalKey = goal === "Weight Loss" ? "Weight Loss" : (goal === "Weight Gain" ? "Weight Gain" : "Maintenance");
+            const ratios = macroRatios[goalKey];
+            calculationResults.macroRatio = ratios;
+
+            calculationResults.dailyPlan = dailyCalories.map(calories => ({
+                calories: Math.round(calories),
+                protein: Math.round((calories * ratios.p) / 4),
+                carbs: Math.round((calories * ratios.c) / 4),
+                fat: Math.round((calories * ratios.f) / 9),
+                other: Math.round((calories * ratios.o) / 4) // Assuming 4 kcal/g for "Other" like fiber
+            }));
+
+            setTimeout(() => {
+                generateMealPlan();
+            }, 1500);
+        }
+
+        function generateMealPlan() {
+            const { goal, activityStyle, activityDays, workoutTiming } = userData;
+            const { dailyPlan, macroRatio } = calculationResults;
+
+            const mealDistributions = {
+                morningWorkout: {
+                    "Weight Loss": { 'Pre-Workout': 0.08, 'Post-Workout': 0.22, 'Breakfast': 0.20, 'Lunch': 0.25, 'Evening Snack': 0.10, 'Dinner': 0.15 },
+                    "Weight Gain": { 'Pre-Workout': 0.10, 'Post-Workout': 0.25, 'Breakfast': 0.20, 'Lunch': 0.25, 'Evening Snack': 0.10, 'Dinner': 0.10 },
+                    "Maintenance": { 'Pre-Workout': 0.10, 'Post-Workout': 0.20, 'Breakfast': 0.20, 'Lunch': 0.25, 'Evening Snack': 0.10, 'Dinner': 0.15 }
+                },
+                eveningWorkout: {
+                    "Weight Loss": { 'Breakfast': 0.25, 'Morning Snack': 0.10, 'Lunch': 0.25, 'Pre-Workout': 0.08, 'Post-Workout': 0.20, 'Dinner': 0.12 },
+                    "Weight Gain": { 'Breakfast': 0.20, 'Morning Snack': 0.10, 'Lunch': 0.25, 'Pre-Workout': 0.10, 'Post-Workout': 0.25, 'Dinner': 0.10 },
+                    "Maintenance": { 'Breakfast': 0.20, 'Morning Snack': 0.10, 'Lunch': 0.25, 'Pre-Workout': 0.10, 'Post-Workout': 0.20, 'Dinner': 0.15 }
+                },
+                rest: {
+                    "Weight Loss": { 'Breakfast': 0.28, 'Snack 1': 0.10, 'Lunch': 0.32, 'Snack 2': 0.10, 'Dinner': 0.20 },
+                    "Weight Gain": { 'Breakfast': 0.24, 'Snack 1': 0.12, 'Lunch': 0.26, 'Snack 2': 0.14, 'Dinner': 0.24 },
+                    "Maintenance": { 'Breakfast': 0.22, 'Snack 1': 0.10, 'Lunch': 0.30, 'Snack 2': 0.12, 'Dinner': 0.26 }
+                }
+            };
+
+            calculationResults.mealPlan = dailyPlan.map((day, dayIndex) => {
+                const currentDayIndex = dayIndex + 1;
+                let dayType = 'rest';
+                if (activityStyle === 'Dedicated Routine' && activityDays.includes(currentDayIndex)) {
+                    dayType = workoutTiming === 'Morning' ? 'morningWorkout' : 'eveningWorkout';
+                }
+
+                const goalKey = goal === "Weight Loss" ? "Weight Loss" : (goal === "Weight Gain" ? "Weight Gain" : "Maintenance");
+                const mealDistribution = mealDistributions[dayType][goalKey];
+
+                const meals = Object.keys(mealDistribution).map(mealSlotName => {
+                    const mealCalories = day.calories * mealDistribution[mealSlotName];
+                    const mealTargets = {
+                        calories: Math.round(mealCalories),
+                        protein: Math.round((mealCalories * macroRatio.p) / 4),
+                        carbs: Math.round((mealCalories * macroRatio.c) / 4),
+                        fat: Math.round((mealCalories * macroRatio.f) / 9),
+                        other: Math.round((mealCalories * macroRatio.o) / 4)
+                    };
+
+                    return {
+                        mealSlot: mealSlotName,
+                        actuals: mealTargets
+                    };
+                });
+                return { ...day, meals: meals };
+            });
+
+            displayMealPlan(calculationResults.mealPlan);
+        }
+
+        function displayMealPlan(plan) {
+            navigateTo('meal-plan-card');
+            const profilePanel = document.getElementById('profile-summary-panel');
+            let activityDetails = '';
+            if (userData.activityStyle === 'Dedicated Routine') {
+                activityDetails = `(${userData.activityDays.length} active days, ${userData.activityIntensity}, ${userData.workoutTiming} workouts)`;
+            } else if (userData.activityStyle === 'Casual Activity') {
+                activityDetails = `(${userData.activityFrequency} sessions, ${userData.activityIntensity})`;
+            }
+
+            const ratios = calculationResults.macroRatio;
+
+            const profileHTML = `
+                <div class="space-y-3 text-sm text-gray-700">
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <p class="font-semibold text-gray-500">Physical</p>
+                        <p>${userData.gender}, ${userData.age} years, ${userData.weight}kg, ${userData.height}cm</p>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <p class="font-semibold text-gray-500">Goal</p>
+                        <p>${userData.goal}</p>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <p class="font-semibold text-gray-500">Activity</p>
+                        <p>${userData.activityStyle}</p>
+                        <p class="text-xs text-gray-500">${activityDetails}</p>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <p class="font-semibold text-gray-500">Diet</p>
+                        <p>${userData.diet}</p>
+                    </div>
+                </div>
+            `;
+
+            const calculationBreakdownHTML = `
+                 <div class="space-y-3 text-sm text-gray-700">
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                       <p class="font-semibold text-gray-500">BMR (Basal Metabolic Rate)</p>
+                       <p>${calculationResults.bmr} kcal</p>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                       <p class="font-semibold text-gray-500">TDEE Multiplier</p>
+                       <p>${calculationResults.tdeeMultiplier}</p>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                       <p class="font-semibold text-gray-500">Goal Adjustment</p>
+                       <p>${calculationResults.calorieAdjustment > 0 ? '+' : ''}${calculationResults.calorieAdjustment} kcal/day</p>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                       <p class="font-semibold text-gray-500">Macro Ratio (P/C/F/O)</p>
+                       <p>${ratios.p * 100}% / ${ratios.c * 100}% / ${ratios.f * 100}% / ${ratios.o * 100}%</p>
+                    </div>
+                </div>
+            `;
+
+            profilePanel.innerHTML = `
+                <div class="accordion-item">
+                    <button class="accordion-header flex justify-between items-center w-full text-left py-2">
+                        <h3 class="text-xl font-bold text-gray-800">Your Profile</h3>
+                        <svg class="w-5 h-5 transition-transform transform lg:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-content hidden lg:block overflow-hidden">
+                        <div class="pt-2">${profileHTML}</div>
+                    </div>
+                </div>
+                <div class="accordion-item mt-4 pt-4 border-t">
+                    <button class="accordion-header flex justify-between items-center w-full text-left py-2">
+                        <h3 class="text-lg font-bold text-gray-800">How We Calculated</h3>
+                        <svg class="w-5 h-5 transition-transform transform lg:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-content hidden lg:block overflow-hidden">
+                        <div class="pt-2">${calculationBreakdownHTML}</div>
+                    </div>
+                </div>
+            `;
+
+            profilePanel.querySelectorAll('.accordion-header').forEach(button => {
+                button.addEventListener('click', () => {
+                    if (window.innerWidth < 1024) {
+                        const content = button.nextElementSibling;
+                        const icon = button.querySelector('svg');
+                        content.classList.toggle('hidden');
+                        icon.classList.toggle('rotate-180');
+                    }
+                });
+            });
+
+            const planHeader = document.getElementById('plan-header');
+            const goal = userData.goal;
+            const planTitle = `Here is your 2 Week Personalized ${goal} Plan`;
+            const futureDate = new Date();
+            futureDate.setDate(new Date().getDate() + 14);
+            const formattedFutureDate = futureDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+
+            let predictionMessage = '';
+            if (goal === 'Maintenance') {
+                predictionMessage = "You'll not face any significant weight change.";
+            } else {
+                const action = goal === 'Weight Loss' ? 'Lose' : 'Gain';
+                predictionMessage = `You'll ${action} 1-2 kg by ${formattedFutureDate}.`;
+            }
+
+            const { activityStyle, activityFrequency, activityDays, activityIntensity } = userData;
+            let workoutDescription = '';
+            if (activityStyle === 'Light Activity') {
+                workoutDescription = `You selected <strong>Light Activity</strong>. Following this routine helps gradually improve overall health and mobility while managing a busy lifestyle. Consistency is key!`;
+            } else if (activityStyle === 'Casual Activity') {
+                workoutDescription = `You selected <strong>Casual Activity</strong>, with <strong>${activityFrequency} sessions</strong> over 14 days at a <strong>${activityIntensity}</strong>. This approach is great for gradually growing in your fitness journey while managing a stressful lifestyle.`;
+            } else if (activityStyle === 'Dedicated Routine') {
+                workoutDescription = `You selected a <strong>Dedicated Routine</strong> with <strong>${activityDays.length} active days</strong> at a <strong>${activityIntensity}</strong>. This structured plan is the most effective way to build muscle, increase strength, and lose fat.`;
+            }
+
+            planHeader.innerHTML = `
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800">${planTitle}</h2>
+                <p class="mt-2 text-md text-green-700 font-semibold">${predictionMessage}</p>
+                <p class="mt-1 text-sm text-gray-500">Please generate a new plan every 2 weeks with your new physical info for best results.</p>
+                
+                <div class="accordion-item mt-6 py-2 border-y border-gray-200">
+                    <button class="accordion-header flex justify-between items-center w-full text-left py-2">
+                        <h3 class="text-lg font-semibold text-gray-800">Tips to Achieve Your Target</h3>
+                        <svg class="w-5 h-5 transition-transform transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-content hidden overflow-hidden">
+                        <div class="pt-2 space-y-4 text-sm text-gray-600">
+                            <div class="flex items-start">
+                                <span class="text-2xl mr-3">🏋️‍♂️</span>
+                                <div>
+                                    <p class="font-semibold text-gray-700">Stick to the workout plan you chose:</p>
+                                    <p class="mt-1">${workoutDescription}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-2xl mr-3">💧</span>
+                                <div>
+                                    <p class="font-semibold text-gray-700">Drink 2.5–3L of water daily:</p>
+                                    <p class="mt-1">Proper hydration helps keep energy levels stable, supports digestion, and maintains a healthy metabolism.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-2xl mr-3">😴</span>
+                                <div>
+                                    <p class="font-semibold text-gray-700">Sleep 7–8 hours regularly:</p>
+                                    <p class="mt-1">Consistent sleep keeps hunger, energy, and stress in check — crucial for long-term body weight and health stability.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            planHeader.querySelector('.accordion-header').addEventListener('click', () => {
+                const content = planHeader.querySelector('.accordion-content');
+                const icon = planHeader.querySelector('.accordion-header svg');
+                content.classList.toggle('hidden');
+                icon.classList.toggle('rotate-180');
+            });
+
+
+            const container = document.getElementById('meal-plan-list');
+            container.innerHTML = '';
+
+            plan.forEach((day, index) => {
+                const futureDate = new Date();
+                futureDate.setDate(new Date().getDate() + index);
+                const dateString = `Day ${index + 1}: ${futureDate.toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' })}`;
+
+                let dayTypeBadge = '';
+                if (userData.activityStyle === 'Dedicated Routine') {
+                    const isActivityDay = userData.activityDays.includes(index + 1);
+                    if (isActivityDay) {
+                        dayTypeBadge = `<span class="text-xs font-semibold bg-green-100 text-green-800 px-2 py-1 rounded-full">Active Day</span>`;
+                    } else {
+                        dayTypeBadge = `<span class="text-xs font-semibold bg-gray-200 text-gray-700 px-2 py-1 rounded-full">Rest Day</span>`;
+                    }
+                }
+
+                const dayCard = document.createElement('div');
+                dayCard.className = 'day-card bg-white p-4 rounded-lg shadow-md cursor-pointer';
+                dayCard.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <h4 class="font-bold text-lg">${dateString}</h4>
+                        <div class="flex flex-col items-end space-y-1">
+                             <p class="text-sm text-gray-500">${day.meals.length} meals</p>
+                             ${dayTypeBadge}
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center bg-primary-light p-3 rounded-lg">
+                         <div>
+                            <p class="text-xs text-primary-dark">Total Calories</p>
+                            <p class="font-bold text-xl text-primary">${day.calories} kcal</p>
+                         </div>
+                         <div class="text-xs text-right">
+                            <p>P: <span class="font-semibold">${day.protein}g</span> | C: <span class="font-semibold">${day.carbs}g</span></p>
+                            <p>F: <span class="font-semibold">${day.fat}g</span> | O: <span class="font-semibold">${day.other}g</span></p>
+                         </div>
+                    </div>
+                `;
+                dayCard.onclick = () => showMealModal(day, futureDate);
+                container.appendChild(dayCard);
+            });
+        }
+
+        function showMealModal(dayData, date) {
+            const modal = document.getElementById('meal-modal');
+            const title = document.getElementById('modal-title');
+            const body = document.getElementById('modal-body');
+
+            title.textContent = `Nutritional Targets for ${date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}`;
+
+            let content = `<div class="space-y-3 pt-3 border-t">`;
+            dayData.meals.forEach(meal => {
+                content += `<div class="p-3 bg-gray-50 rounded-lg"><p class="font-bold text-lg text-primary-color">${meal.mealSlot}</p><div class="grid grid-cols-5 text-center text-sm my-2 gap-1"><div><p class="font-semibold">${meal.actuals.calories}</p><p class="text-xs text-muted-color">kcal</p></div><div><p class="font-semibold">${meal.actuals.protein}g</p><p class="text-xs text-muted-color">Protein</p></div><div><p class="font-semibold">${meal.actuals.carbs}g</p><p class="text-xs text-muted-color">Carbs</p></div><div><p class="font-semibold">${meal.actuals.fat}g</p><p class="text-xs text-muted-color">Fat</p></div><div><p class="font-semibold">${meal.actuals.other}g</p><p class="text-xs text-muted-color">Other</p></div></div></div>`;
+            });
+            content += `</div>`;
+            body.innerHTML = content;
+            modal.classList.add('visible');
+        }
+
+        function closeMealModal() { document.getElementById('meal-modal').classList.remove('visible'); }
+        function openSavePlanModal() { document.getElementById('save-plan-modal').classList.add('visible'); }
+        function closeSavePlanModal() { document.getElementById('save-plan-modal').classList.remove('visible'); }
+
+        function checkSaveFormValidity() {
+            const name = document.getElementById('user-name').value;
+            const email = document.getElementById('user-email').value;
+            const interest = document.querySelector('input[name="delivery-interest"]:checked');
+            const downloadBtn = document.getElementById('download-pdf-btn');
+            const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            downloadBtn.disabled = !(name && isEmailValid && interest);
+        }
+
+        function downloadMealPlanPDF() {
+            const doc = new jsPDF();
+            const plan = calculationResults.mealPlan;
+            const today = new Date();
+            const userName = document.getElementById('user-name').value;
+
+            // --- Header Function ---
+            const addHeader = (doc) => {
+                doc.setFontSize(16);
+                doc.setFont(undefined, 'bold');
+                doc.text(`14-Day Nutritional Plan for ${userName}`, doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'normal');
+                doc.text(`Generated on: ${today.toLocaleDateString()}`, doc.internal.pageSize.getWidth() / 2, 22, { align: 'center' });
+            };
+
+            // --- Footer Function ---
+            const addFooter = (doc, pageNum, pageCount) => {
+                doc.setFontSize(8);
+                doc.setFont(undefined, 'italic');
+                const footerText = 'Nutritional Scale – Eat like it’s designed for you — because it is';
+                const textWidth = doc.getStringUnitWidth(footerText) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+                const x = (doc.internal.pageSize.getWidth() - textWidth) / 2;
+                doc.text(footerText, x, doc.internal.pageSize.getHeight() - 10);
+                doc.text(`Page ${pageNum} of ${pageCount}`, doc.internal.pageSize.getWidth() - 25, doc.internal.pageSize.getHeight() - 10);
+            };
+
+            addHeader(doc);
+
+            // --- Profile Summary ---
+            let yPos = 30;
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.text('Your Profile & Choices:', 14, yPos);
+            yPos += 6;
+
+            let activityDetails = '';
+            if (userData.activityStyle === 'Dedicated Routine') {
+                activityDetails = `(${userData.activityDays.length} active days, ${userData.activityIntensity}, ${userData.workoutTiming} workouts)`;
+            } else if (userData.activityStyle === 'Casual Activity') {
+                activityDetails = `(${userData.activityFrequency} sessions, ${userData.activityIntensity})`;
+            }
+
+            const profileText = [
+                `Physical: ${userData.gender}, ${userData.age} years, ${userData.weight}kg, ${userData.height}cm`,
+                `Goal: ${userData.goal}`,
+                `Diet: ${userData.diet}`,
+                `Activity: ${userData.activityStyle} ${activityDetails}`
+            ];
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            doc.text(profileText, 14, yPos);
+            yPos += (profileText.length * 5) + 10;
+
+            // --- Tips Section ---
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.text('Tips to Achieve Your Target:', 14, yPos);
+            yPos += 6;
+
+            let workoutDescription = '';
+            if (userData.activityStyle === 'Light Activity') {
+                workoutDescription = `You selected Light Activity. Following this routine helps gradually improve overall health and mobility while managing a busy lifestyle. Consistency is key!`;
+            } else if (userData.activityStyle === 'Casual Activity') {
+                workoutDescription = `You selected Casual Activity, with ${userData.activityFrequency} sessions over 14 days at a ${userData.activityIntensity}. This approach is great for gradually growing in your fitness journey.`;
+            } else if (userData.activityStyle === 'Dedicated Routine') {
+                workoutDescription = `You selected a Dedicated Routine with ${userData.activityDays.length} active days at a ${userData.activityIntensity}. This structured plan is the most effective way to build muscle, increase strength, and lose fat.`;
+            }
+
+            const tips = [
+                { title: 'Stick to the workout plan you chose:', content: workoutDescription },
+                { title: 'Drink 2.5–3L of water daily:', content: 'Proper hydration helps keep energy levels stable, supports digestion, and maintains a healthy metabolism.' },
+                { title: 'Sleep 7–8 hours regularly:', content: 'Consistent sleep keeps hunger, energy, and stress in check — crucial for long-term body weight and health stability.' }
+            ];
+
+            const maxWidth = doc.internal.pageSize.getWidth() - 28; // max width with margins
+            doc.setFontSize(10);
+            tips.forEach(tip => {
+                doc.setFont(undefined, 'bold');
+                doc.text(tip.title, 14, yPos);
+                yPos += 5;
+                doc.setFont(undefined, 'normal');
+                const splitContent = doc.splitTextToSize(tip.content, maxWidth);
+                doc.text(splitContent, 14, yPos);
+                yPos += (splitContent.length * 5) + 3;
+            });
+            yPos += 5;
+
+            // --- Meal Plan Table ---
+            const tableData = [];
+            plan.forEach((day, index) => {
+                const futureDate = new Date();
+                futureDate.setDate(today.getDate() + index);
+                const dateString = `Day ${index + 1}: ${futureDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}`;
+
+                tableData.push([{ content: `${dateString} | Total: ${day.calories} kcal`, colSpan: 6, styles: { fontStyle: 'bold', fillColor: '#e6f2e6', textColor: '#006400' } }]);
+
+                day.meals.forEach(meal => {
+                    tableData.push([
+                        meal.mealSlot,
+                        `${meal.actuals.calories} kcal`,
+                        `${meal.actuals.protein}g`,
+                        `${meal.actuals.carbs}g`,
+                        `${meal.actuals.fat}g`,
+                        `${meal.actuals.other}g`
+                    ]);
+                });
+            });
+
+            doc.autoTable({
+                head: [['Meal', 'Calories', 'Protein', 'Carbs', 'Fat', 'Other']],
+                body: tableData,
+                startY: yPos,
+                didDrawPage: function (data) {
+                    if (data.pageNumber > 1) {
+                        addHeader(doc);
+                    }
+                    addFooter(doc, data.pageNumber, doc.internal.getNumberOfPages());
+                },
+                margin: { top: 30, bottom: 15 },
+                styles: { fontSize: 9, cellPadding: 2, valign: 'middle' },
+                headStyles: { fillColor: [0, 100, 0], textColor: [255, 255, 255], fontStyle: 'bold' },
+                columnStyles: { 0: { cellWidth: 35 }, 1: { cellWidth: 25 }, 2: { cellWidth: 25 }, 3: { cellWidth: 25 }, 4: { cellWidth: 25 }, 5: { cellWidth: 25 } }
+            });
+
+            // Add footer to the first page if there's only one page
+            if (doc.internal.getNumberOfPages() === 1) {
+                addFooter(doc, 1, 1);
+            }
+
+            doc.save(`${userName}-Nutritional-Plan.pdf`);
+            closeSavePlanModal();
+        }
+
+        function resetForm() {
+            // Clear all user data
+            Object.keys(userData).forEach(key => {
+                if (Array.isArray(userData[key])) userData[key] = [];
+                else userData[key] = null;
+            });
+            isEditing = false;
+
+            // Clear input fields
+            cardSequence.slice(0, 10).forEach((stepName) => {
+                const input = document.getElementById(stepName);
+                if (input) input.value = '';
+            });
+
+            // Deselect all custom options
+            document.querySelectorAll('.selection-card, .custom-select-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+
+            // Clear save plan modal fields
+            document.getElementById('user-name').value = '';
+            document.getElementById('user-email').value = '';
+            document.querySelectorAll('input[name="delivery-interest"]').forEach(radio => radio.checked = false);
+            document.querySelectorAll('.delivery-option-card').forEach(card => card.classList.remove('selected'));
+            checkSaveFormValidity();
+
+            // Navigate back to the landing screen using navigateTo for consistent transitions
+            navigateTo('landing-card');
+        }
+
+        window.onload = () => {
+            createCustomSelect('gender', 'gender-options');
+            createCustomSelect('goal', 'goal-options');
+            createCustomSelect('activityStyle', 'activityStyle-options');
+            createCustomSelect('activityIntensity', 'activityIntensity-options');
+            createCustomSelect('workoutTiming', 'workoutTiming-options');
+            createCustomSelect('diet', 'diet-options');
+
+            document.getElementById('user-name').addEventListener('input', checkSaveFormValidity);
+            document.getElementById('user-email').addEventListener('input', checkSaveFormValidity);
+
+            document.querySelectorAll('.delivery-option-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.delivery-option-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    document.getElementById(card.dataset.value === 'Yes' ? 'delivery-yes' : 'delivery-no').checked = true;
+                    checkSaveFormValidity();
+                });
+            });
+
+            // Call resetForm to ensure initial state is clean and landing page is displayed correctly
+            resetForm();
+        };
+
+    </script>
+</body>
+
+</html>

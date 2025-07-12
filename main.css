@@ -1,0 +1,152 @@
+:root {
+  --primary-color: #008000;
+  --primary-color-light: #e6f2e6;
+  --primary-color-dark: #006400;
+}
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+body {
+  font-family: "Inter", sans-serif;
+  background-color: #f3f4f6;
+}
+.app-container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.form-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  background-color: #f9fafb;
+}
+.form-screen.hidden-right {
+  opacity: 0;
+  transform: translateX(100%);
+  pointer-events: none;
+}
+.form-screen.hidden-left {
+  opacity: 0;
+  transform: translateX(-100%);
+  pointer-events: none;
+}
+.step-indicator {
+  transition: all 0.4s ease-in-out;
+}
+.step-indicator.active .step-circle {
+  border-color: var(--primary-color);
+  background-color: var(--primary-color-light);
+}
+.step-indicator.active .step-text {
+  color: var(--primary-color);
+}
+.step-indicator.complete .step-circle {
+  border-color: var(--primary-color);
+  background-color: var(--primary-color);
+}
+.step-indicator.complete .step-text {
+  color: var(--primary-color-dark);
+}
+/* Custom Dropdown */
+.custom-select-option {
+  transition: background-color 0.2s, color 0.2s;
+}
+.custom-select-option.selected {
+  background-color: var(--primary-color-light);
+  color: var(--primary-color-dark);
+  font-weight: 600;
+}
+/* Goal Card Selection */
+.selection-card,
+.delivery-option-card {
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.selection-card.selected,
+.delivery-option-card.selected {
+  border-color: var(--primary-color);
+  background-color: var(--primary-color-light);
+  box-shadow: 0 0 0 2px var(--primary-color-light);
+}
+.selection-card.selected .radio-circle-outer {
+  border-color: var(--primary-color);
+}
+.selection-card.selected .radio-circle-inner {
+  transform: scale(1);
+}
+.radio-circle-inner {
+  transform: scale(0);
+  transition: transform 0.2s;
+}
+
+/* Day Card */
+.day-card {
+  transition: all 0.3s ease;
+}
+.day-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.modal-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.modal-content {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  max-width: 90%;
+  width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+/* Custom classes for JS manipulation */
+.text-primary {
+  color: var(--primary-color);
+}
+.text-muted {
+  color: #6b7280;
+}
+.loader {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid var(--primary-color);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
