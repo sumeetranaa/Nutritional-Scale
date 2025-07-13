@@ -127,6 +127,45 @@ body {
   max-height: 90vh;
   overflow-y: auto;
 }
+
+/* Confirmation Modal Specific Styles */
+.confirmation-modal-content {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  max-width: 90%;
+  width: 400px; /* Slightly smaller for confirmation */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+.confirmation-modal-content .button-group {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.confirmation-modal-content button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+.confirmation-modal-content .confirm-btn {
+  background-color: #ef4444; /* Red for destructive action */
+  color: white;
+}
+.confirmation-modal-content .confirm-btn:hover {
+  background-color: #dc2626;
+}
+.confirmation-modal-content .cancel-btn {
+  background-color: #e5e7eb; /* Gray for cancel */
+  color: #374151;
+}
+.confirmation-modal-content .cancel-btn:hover {
+  background-color: #d1d5db;
+}
+
 /* Custom classes for JS manipulation */
 .text-primary {
   color: var(--primary-color);
@@ -142,6 +181,17 @@ body {
   height: 40px;
   animation: spin 1s linear infinite;
 }
+.small-loader {
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid var(--primary-color);
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  margin-left: 8px;
+  vertical-align: middle;
+}
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -149,4 +199,31 @@ body {
   100% {
     transform: rotate(360deg);
   }
+}
+.floating-loading-bar {
+  position: fixed;
+  bottom: 0; /* Aligned to the very bottom */
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.8); /* Darker background for visibility */
+  color: white;
+  padding: 1rem; /* More padding to look like a stripe */
+  border-top-left-radius: 0.5rem; /* Rounded top corners */
+  border-top-right-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center content */
+  gap: 1rem;
+  font-size: 1rem;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+  width: 100%; /* Ensure it spans full width */
+  box-sizing: border-box; /* Include padding in width */
+}
+.floating-loading-bar.visible {
+  opacity: 1;
+  pointer-events: auto;
 }
