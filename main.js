@@ -39,6 +39,653 @@ const cardSequence = [
 ];
 let currentScreenId = "landing-card"; // Initial screen is now the landing page
 let isEditing = false;
+let mealNamesLoaded = new Array(14).fill(false); // Track loading state for each day
+let isLoadingMeals = false; // Global flag for meal loading
+let abortController = null; // To allow cancellation of fetch requests
+
+// Premium Indian Meals Data (Expanded with typical ingredients for AI reference)
+const premiumIndianMeals = {
+  Breakfast: {
+    Vegetarian: [
+      {
+        name: "Protein-Packed Oatmeal Bowl",
+        ingredients: [
+          "Rolled Oats",
+          "Almond Milk",
+          "Whey Protein Isolate",
+          "Berries",
+          "Chia Seeds",
+          "Almond Butter",
+        ],
+      },
+      {
+        name: "Tofu Scramble with Avocado",
+        ingredients: [
+          "Tofu",
+          "Mixed Veggies",
+          "Avocado",
+          "Turmeric",
+          "Black Pepper",
+        ],
+      },
+      {
+        name: "Greek Yogurt Parfait",
+        ingredients: ["Greek Yogurt", "Granola", "Mixed Fruit", "Flax Seeds"],
+      },
+      {
+        name: "Multigrain Protein Pancakes",
+        ingredients: [
+          "Multigrain Flour",
+          "Egg",
+          "Protein Powder",
+          "Almond Milk",
+          "Fruit",
+        ],
+      },
+    ],
+    "Non-Vegetarian": [
+      {
+        name: "Egg White & Veggie Scramble",
+        ingredients: [
+          "Egg Whites",
+          "Spinach",
+          "Bell Pepper",
+          "Onion",
+          "Turkey Breast",
+        ],
+      },
+      {
+        name: "Smoked Salmon & Rye Toast",
+        ingredients: ["Smoked Salmon", "Rye Toast", "Avocado", "Lemon", "Dill"],
+      },
+      {
+        name: "Protein-Packed Oatmeal Bowl",
+        ingredients: [
+          "Rolled Oats",
+          "Almond Milk",
+          "Whey Protein Isolate",
+          "Berries",
+          "Chia Seeds",
+          "Almond Butter",
+        ],
+      }, // Can be non-veg too
+      {
+        name: "Multigrain Protein Pancakes",
+        ingredients: [
+          "Multigrain Flour",
+          "Egg",
+          "Protein Powder",
+          "Almond Milk",
+          "Fruit",
+        ],
+      }, // Can be non-veg too
+    ],
+  },
+  "Pre-Workout": {
+    Vegetarian: [
+      {
+        name: "Whole Wheat Toast with Banana",
+        ingredients: [
+          "Whole wheat bread slice",
+          "Banana",
+          "Peanut Butter",
+          "Honey",
+        ],
+      },
+      {
+        name: "Whole Wheat Toast with Scrambled Eggs & Avocado",
+        ingredients: ["Whole wheat bread slice", "Eggs", "Avocado"],
+      }, // Eggs are ovo-vegetarian
+      {
+        name: "Scrambled Egg on Whole Wheat English Muffin",
+        ingredients: ["Whole wheat English muffin", "Eggs", "Avocado"],
+      }, // Eggs are ovo-vegetarian
+    ],
+    "Non-Vegetarian": [
+      {
+        name: "Whole Wheat Toast with Banana",
+        ingredients: [
+          "Whole wheat bread slice",
+          "Banana",
+          "Peanut Butter",
+          "Honey",
+        ],
+      },
+      {
+        name: "Whole Wheat Toast with Scrambled Eggs & Avocado",
+        ingredients: ["Whole wheat bread slice", "Eggs", "Avocado"],
+      },
+      {
+        name: "Scrambled Egg on Whole Wheat English Muffin",
+        ingredients: ["Whole wheat English muffin", "Eggs", "Avocado"],
+      },
+    ],
+  },
+  "Post-Workout": {
+    Vegetarian: [
+      {
+        name: "Chocolate Banana Protein Shake",
+        ingredients: [
+          "Protein powder",
+          "Banana",
+          "Almond milk",
+          "Cocoa powder",
+        ],
+      },
+      {
+        name: "Vanilla Berry Protein Shake",
+        ingredients: [
+          "Protein powder",
+          "Mixed berries (strawberries, blueberries, raspberries)",
+          "Water/Milk",
+        ],
+      },
+      {
+        name: "Tropical Mango Coconut Protein Shake",
+        ingredients: [
+          "Protein powder",
+          "Mango chunks",
+          "Coconut milk (light)",
+          "Lime juice",
+        ],
+      },
+    ],
+    "Non-Vegetarian": [
+      {
+        name: "Chocolate Banana Protein Shake",
+        ingredients: [
+          "Protein powder",
+          "Banana",
+          "Almond milk",
+          "Cocoa powder",
+        ],
+      },
+      {
+        name: "Vanilla Berry Protein Shake",
+        ingredients: [
+          "Protein powder",
+          "Mixed berries (strawberries, blueberries, raspberries)",
+          "Water/Milk",
+        ],
+      },
+      {
+        name: "Tropical Mango Coconut Protein Shake",
+        ingredients: [
+          "Protein powder",
+          "Mango chunks",
+          "Coconut milk (light)",
+          "Lime juice",
+        ],
+      },
+    ],
+  },
+  "Morning Snack": {
+    Vegetarian: [
+      {
+        name: "Trail Mix with Greek Yogurt",
+        ingredients: [
+          "Mixed Nuts",
+          "Dried Fruit",
+          "Pumpkin Seeds",
+          "Greek Yogurt",
+        ],
+      },
+      {
+        name: "Protein Balls",
+        ingredients: ["Protein Powder", "Oats", "Nut Butter", "Dates", "Seeds"],
+      },
+      {
+        name: "Cottage Cheese with Fruit & Seeds",
+        ingredients: ["Cottage Cheese", "Mixed Berries", "Chia Seeds"],
+      },
+      {
+        name: "Hard-Boiled Eggs with Avocado & Crackers",
+        ingredients: ["Hard-Boiled Eggs", "Avocado", "Whole Grain Crackers"],
+      }, // Eggs are ovo-vegetarian
+      {
+        name: "Edamame with Sea Salt",
+        ingredients: ["Steamed Edamame", "Sea Salt"],
+      },
+      {
+        name: "Roasted Chickpeas with Spices",
+        ingredients: ["Chickpeas", "Olive Oil", "Spices (cumin, paprika)"],
+      },
+    ],
+    "Non-Vegetarian": [
+      {
+        name: "Trail Mix with Greek Yogurt",
+        ingredients: [
+          "Mixed Nuts",
+          "Dried Fruit",
+          "Pumpkin Seeds",
+          "Greek Yogurt",
+        ],
+      },
+      {
+        name: "Protein Balls",
+        ingredients: ["Protein Powder", "Oats", "Nut Butter", "Dates", "Seeds"],
+      },
+      {
+        name: "Cottage Cheese with Fruit & Seeds",
+        ingredients: ["Cottage Cheese", "Mixed Berries", "Chia Seeds"],
+      },
+      {
+        name: "Hard-Boiled Eggs with Avocado & Crackers",
+        ingredients: ["Hard-Boiled Eggs", "Avocado", "Whole Grain Crackers"],
+      },
+      {
+        name: "Edamame with Sea Salt",
+        ingredients: ["Steamed Edamame", "Sea Salt"],
+      },
+      {
+        name: "Roasted Chickpeas with Spices",
+        ingredients: ["Chickpeas", "Olive Oil", "Spices (cumin, paprika)"],
+      },
+    ],
+  },
+  "Evening Snack": {
+    // Reusing Morning Snack for Evening Snack as per user's list
+    Vegetarian: [
+      {
+        name: "Trail Mix with Greek Yogurt",
+        ingredients: [
+          "Mixed Nuts",
+          "Dried Fruit",
+          "Pumpkin Seeds",
+          "Greek Yogurt",
+        ],
+      },
+      {
+        name: "Protein Balls",
+        ingredients: ["Protein Powder", "Oats", "Nut Butter", "Dates", "Seeds"],
+      },
+      {
+        name: "Cottage Cheese with Fruit & Seeds",
+        ingredients: ["Cottage Cheese", "Mixed Berries", "Chia Seeds"],
+      },
+      {
+        name: "Hard-Boiled Eggs with Avocado & Crackers",
+        ingredients: ["Hard-Boiled Eggs", "Avocado", "Whole Grain Crackers"],
+      },
+      {
+        name: "Edamame with Sea Salt",
+        ingredients: ["Steamed Edamame", "Sea Salt"],
+      },
+      {
+        name: "Roasted Chickpeas with Spices",
+        ingredients: ["Chickpeas", "Olive Oil", "Spices (cumin, paprika)"],
+      },
+    ],
+    "Non-Vegetarian": [
+      {
+        name: "Trail Mix with Greek Yogurt",
+        ingredients: [
+          "Mixed Nuts",
+          "Dried Fruit",
+          "Pumpkin Seeds",
+          "Greek Yogurt",
+        ],
+      },
+      {
+        name: "Protein Balls",
+        ingredients: ["Protein Powder", "Oats", "Nut Butter", "Dates", "Seeds"],
+      },
+      {
+        name: "Cottage Cheese with Fruit & Seeds",
+        ingredients: ["Cottage Cheese", "Mixed Berries", "Chia Seeds"],
+      },
+      {
+        name: "Hard-Boiled Eggs with Avocado & Crackers",
+        ingredients: ["Hard-Boiled Eggs", "Avocado", "Whole Grain Crackers"],
+      },
+      {
+        name: "Edamame with Sea Salt",
+        ingredients: ["Steamed Edamame", "Sea Salt"],
+      },
+      {
+        name: "Roasted Chickpeas with Spices",
+        ingredients: ["Chickpeas", "Olive Oil", "Spices (cumin, paprika)"],
+      },
+    ],
+  },
+  "Snack 1": {
+    // Generic snack slot, reusing Morning Snack
+    Vegetarian: [
+      {
+        name: "Trail Mix with Greek Yogurt",
+        ingredients: [
+          "Mixed Nuts",
+          "Dried Fruit",
+          "Pumpkin Seeds",
+          "Greek Yogurt",
+        ],
+      },
+      {
+        name: "Protein Balls",
+        ingredients: ["Protein Powder", "Oats", "Nut Butter", "Dates", "Seeds"],
+      },
+      {
+        name: "Cottage Cheese with Fruit & Seeds",
+        ingredients: ["Cottage Cheese", "Mixed Berries", "Chia Seeds"],
+      },
+      {
+        name: "Hard-Boiled Eggs with Avocado & Crackers",
+        ingredients: ["Hard-Boiled Eggs", "Avocado", "Whole Grain Crackers"],
+      },
+      {
+        name: "Edamame with Sea Salt",
+        ingredients: ["Steamed Edamame", "Sea Salt"],
+      },
+      {
+        name: "Roasted Chickpeas with Spices",
+        ingredients: ["Chickpeas", "Olive Oil", "Spices (cumin, paprika)"],
+      },
+    ],
+    "Non-Vegetarian": [
+      {
+        name: "Trail Mix with Greek Yogurt",
+        ingredients: [
+          "Mixed Nuts",
+          "Dried Fruit",
+          "Pumpkin Seeds",
+          "Greek Yogurt",
+        ],
+      },
+      {
+        name: "Protein Balls",
+        ingredients: ["Protein Powder", "Oats", "Nut Butter", "Dates", "Seeds"],
+      },
+      {
+        name: "Cottage Cheese with Fruit & Seeds",
+        ingredients: ["Cottage Cheese", "Mixed Berries", "Chia Seeds"],
+      },
+      {
+        name: "Hard-Boiled Eggs with Avocado & Crackers",
+        ingredients: ["Hard-Boiled Eggs", "Avocado", "Whole Grain Crackers"],
+      },
+      {
+        name: "Edamame with Sea Salt",
+        ingredients: ["Steamed Edamame", "Sea Salt"],
+      },
+      {
+        name: "Roasted Chickpeas with Spices",
+        ingredients: ["Chickpeas", "Olive Oil", "Spices (cumin, paprika)"],
+      },
+    ],
+  },
+  "Snack 2": {
+    // Generic snack slot, reusing Morning Snack
+    Vegetarian: [
+      {
+        name: "Trail Mix with Greek Yogurt",
+        ingredients: [
+          "Mixed Nuts",
+          "Dried Fruit",
+          "Pumpkin Seeds",
+          "Greek Yogurt",
+        ],
+      },
+      {
+        name: "Protein Balls",
+        ingredients: ["Protein Powder", "Oats", "Nut Butter", "Dates", "Seeds"],
+      },
+      {
+        name: "Cottage Cheese with Fruit & Seeds",
+        ingredients: ["Cottage Cheese", "Mixed Berries", "Chia Seeds"],
+      },
+      {
+        name: "Hard-Boiled Eggs with Avocado & Crackers",
+        ingredients: ["Hard-Boiled Eggs", "Avocado", "Whole Grain Crackers"],
+      },
+      {
+        name: "Edamame with Sea Salt",
+        ingredients: ["Steamed Edamame", "Sea Salt"],
+      },
+      {
+        name: "Roasted Chickpeas with Spices",
+        ingredients: ["Chickpeas", "Olive Oil", "Spices (cumin, paprika)"],
+      },
+    ],
+    "Non-Vegetarian": [
+      {
+        name: "Trail Mix with Greek Yogurt",
+        ingredients: [
+          "Mixed Nuts",
+          "Dried Fruit",
+          "Pumpkin Seeds",
+          "Greek Yogurt",
+        ],
+      },
+      {
+        name: "Protein Balls",
+        ingredients: ["Protein Powder", "Oats", "Nut Butter", "Dates", "Seeds"],
+      },
+      {
+        name: "Cottage Cheese with Fruit & Seeds",
+        ingredients: ["Cottage Cheese", "Mixed Berries", "Chia Seeds"],
+      },
+      {
+        name: "Hard-Boiled Eggs with Avocado & Crackers",
+        ingredients: ["Hard-Boiled Eggs", "Avocado", "Whole Grain Crackers"],
+      },
+      {
+        name: "Edamame with Sea Salt",
+        ingredients: ["Steamed Edamame", "Sea Salt"],
+      },
+      {
+        name: "Roasted Chickpeas with Spices",
+        ingredients: ["Chickpeas", "Olive Oil", "Spices (cumin, paprika)"],
+      },
+    ],
+  },
+  Lunch: {
+    Vegetarian: [
+      {
+        name: "Lentil & Vegetable Curry with Brown Rice",
+        ingredients: ["Lentil Curry", "Brown Rice", "Mixed Veggies"],
+      },
+      {
+        name: "Tofu Stir-fry with Brown Rice Noodles",
+        ingredients: [
+          "Tofu",
+          "Mixed Veggies",
+          "Brown Rice Noodles",
+          "Soy Sauce (low sodium)",
+        ],
+      },
+      {
+        name: "Vegetable Paella",
+        ingredients: [
+          "Brown Rice",
+          "Mixed Veggies",
+          "Saffron",
+          "Paprika",
+          "Peas",
+        ],
+      },
+      {
+        name: "Chickpea and Vegetable Curry with Quinoa",
+        ingredients: ["Chickpea Curry", "Quinoa", "Mixed Veggies"],
+      },
+      {
+        name: "Lentil Shepherd's Pie",
+        ingredients: [
+          "Lentils",
+          "Mixed Veggies",
+          "Mashed Sweet Potato Topping",
+        ],
+      },
+      {
+        name: "Tofu and Vegetable Skewers with Brown Rice",
+        ingredients: ["Tofu", "Mixed Veggies", "Brown Rice", "Teriyaki Sauce"],
+      },
+      {
+        name: "Mediterranean Quinoa Bowl",
+        ingredients: [
+          "Quinoa",
+          "Cucumber",
+          "Tomatoes",
+          "Olives",
+          "Feta Cheese",
+          "Lemon Vinaigrette",
+        ],
+      },
+    ],
+    "Non-Vegetarian": [
+      {
+        name: "Grilled Chicken with Quinoa & Veggies",
+        ingredients: ["Chicken Breast", "Quinoa", "Broccoli", "Bell Pepper"],
+      },
+      {
+        name: "Baked Salmon with Sweet Potato & Asparagus",
+        ingredients: ["Salmon", "Sweet Potato", "Asparagus"],
+      },
+      {
+        name: "Chicken Tikka Masala with Basmati Rice",
+        ingredients: ["Chicken Tikka", "Tikka Masala Sauce", "Basmati Rice"],
+      },
+      {
+        name: "Shrimp Scampi with Zucchini Noodles",
+        ingredients: [
+          "Shrimp",
+          "Zucchini Noodles",
+          "Garlic",
+          "White Wine",
+          "Lemon",
+          "Herbs",
+        ],
+      },
+      {
+        name: "Baked Fish with Roasted Root Vegetables",
+        ingredients: ["White Fish Fillet", "Root Veggies", "Herbs", "Lemon"],
+      },
+      {
+        name: "Chicken Fajita Bowl",
+        ingredients: [
+          "Chicken",
+          "Bell Peppers",
+          "Onions",
+          "Black Beans",
+          "Salsa",
+          "Avocado",
+        ],
+      },
+      {
+        name: "Thai Green Curry with Chicken & Brown Rice",
+        ingredients: [
+          "Chicken",
+          "Thai Green Curry",
+          "Brown Rice",
+          "Mixed Veggies",
+        ],
+      },
+    ],
+  },
+  Dinner: {
+    // Reusing Lunch meals for Dinner as per user's list
+    Vegetarian: [
+      {
+        name: "Lentil & Vegetable Curry with Brown Rice",
+        ingredients: ["Lentil Curry", "Brown Rice", "Mixed Veggies"],
+      },
+      {
+        name: "Tofu Stir-fry with Brown Rice Noodles",
+        ingredients: [
+          "Tofu",
+          "Mixed Veggies",
+          "Brown Rice Noodles",
+          "Soy Sauce (low sodium)",
+        ],
+      },
+      {
+        name: "Vegetable Paella",
+        ingredients: [
+          "Brown Rice",
+          "Mixed Veggies",
+          "Saffron",
+          "Paprika",
+          "Peas",
+        ],
+      },
+      {
+        name: "Chickpea and Vegetable Curry with Quinoa",
+        ingredients: ["Chickpea Curry", "Quinoa", "Mixed Veggies"],
+      },
+      {
+        name: "Lentil Shepherd's Pie",
+        ingredients: [
+          "Lentils",
+          "Mixed Veggies",
+          "Mashed Sweet Potato Topping",
+        ],
+      },
+      {
+        name: "Tofu and Vegetable Skewers with Brown Rice",
+        ingredients: ["Tofu", "Mixed Veggies", "Brown Rice", "Teriyaki Sauce"],
+      },
+      {
+        name: "Mediterranean Quinoa Bowl",
+        ingredients: [
+          "Quinoa",
+          "Cucumber",
+          "Tomatoes",
+          "Olives",
+          "Feta Cheese",
+          "Lemon Vinaigrette",
+        ],
+      },
+    ],
+    "Non-Vegetarian": [
+      {
+        name: "Grilled Chicken with Quinoa & Veggies",
+        ingredients: ["Chicken Breast", "Quinoa", "Broccoli", "Bell Pepper"],
+      },
+      {
+        name: "Baked Salmon with Sweet Potato & Asparagus",
+        ingredients: ["Salmon", "Sweet Potato", "Asparagus"],
+      },
+      {
+        name: "Chicken Tikka Masala with Basmati Rice",
+        ingredients: ["Chicken Tikka", "Tikka Masala Sauce", "Basmati Rice"],
+      },
+      {
+        name: "Shrimp Scampi with Zucchini Noodles",
+        ingredients: [
+          "Shrimp",
+          "Zucchini Noodles",
+          "Garlic",
+          "White Wine",
+          "Lemon",
+          "Herbs",
+        ],
+      },
+      {
+        name: "Baked Fish with Roasted Root Vegetables",
+        ingredients: ["White Fish Fillet", "Root Veggies", "Herbs", "Lemon"],
+      },
+      {
+        name: "Chicken Fajita Bowl",
+        ingredients: [
+          "Chicken",
+          "Bell Peppers",
+          "Onions",
+          "Black Beans",
+          "Salsa",
+          "Avocado",
+        ],
+      },
+      {
+        name: "Thai Green Curry with Chicken & Brown Rice",
+        ingredients: [
+          "Chicken",
+          "Thai Green Curry",
+          "Brown Rice",
+          "Mixed Veggies",
+        ],
+      },
+    ],
+  },
+};
 
 const options = {
   gender: ["Male", "Female"],
@@ -129,7 +776,8 @@ const options = {
     },
   ],
   workoutTiming: ["Morning", "Evening"],
-  diet: ["No Preference", "Vegetarian", "Vegan", "Gluten-Free", "Dairy-Free"],
+  // MODIFIED: Simplified diet options
+  diet: ["Vegetarian", "Non-Vegetarian"],
 };
 
 function createCustomSelect(key, containerId) {
@@ -314,10 +962,22 @@ function navigateTo(screenId) {
   updateStepIndicators();
 
   const floatingButtons = document.getElementById("floating-buttons");
+  const floatingLoadingBar = document.getElementById("floating-loading-bar");
+
+  // Control visibility based on current screen and loading state
   if (screenId === "meal-plan-card") {
-    floatingButtons.classList.remove("hidden");
+    if (isLoadingMeals) {
+      floatingButtons.classList.add("hidden");
+      // Ensure loading bar is visible if we are on meal-plan-card and still loading
+      floatingLoadingBar.classList.remove("hidden");
+      floatingLoadingBar.classList.add("visible");
+    } else {
+      floatingButtons.classList.add("hidden"); // Ensure hidden initially
+      floatingLoadingBar.classList.add("hidden");
+    }
   } else {
     floatingButtons.classList.add("hidden");
+    floatingLoadingBar.classList.add("hidden");
   }
 }
 
@@ -411,7 +1071,7 @@ function goBack(currentStepName) {
     goal: "height-card",
     activityStyle: "goal-card",
     activityFrequency: "activityStyle-card",
-    activityIntensity: "activityFrequency-card",
+    activityIntensity: "activityIntensity-card",
     workoutTiming: "activityIntensity-card",
     diet:
       userData.activityStyle === "Dedicated Routine"
@@ -609,15 +1269,59 @@ function calculateDailyTargets() {
     other: Math.round((calories * ratios.o) / 4), // Assuming 4 kcal/g for "Other" like fiber
   }));
 
-  setTimeout(() => {
-    generateMealPlan();
-  }, 1500);
+  // Initialize mealPlan with basic structure, meal names will be loaded async
+  calculationResults.mealPlan = calculationResults.dailyPlan.map(
+    (day, dayIndex) => {
+      const currentDayIndex = dayIndex + 1;
+      let dayType = "rest";
+      if (
+        activityStyle === "Dedicated Routine" &&
+        userData.activityDays.includes(currentDayIndex)
+      ) {
+        dayType =
+          userData.workoutTiming === "Morning"
+            ? "morningWorkout"
+            : "eveningWorkout";
+      }
+      const goalKey =
+        userData.goal === "Weight Loss"
+          ? "Weight Loss"
+          : userData.goal === "Weight Gain"
+          ? "Weight Gain"
+          : "Maintenance";
+      const mealDistribution = getMealDistribution(dayType, goalKey);
+
+      const meals = Object.keys(mealDistribution).map((mealSlotName) => {
+        const mealCalories = day.calories * mealDistribution[mealSlotName];
+        const mealTargets = {
+          calories: Math.round(mealCalories),
+          protein: Math.round(
+            (mealCalories * calculationResults.macroRatio.p) / 4
+          ),
+          carbs: Math.round(
+            (mealCalories * calculationResults.macroRatio.c) / 4
+          ),
+          fat: Math.round((mealCalories * calculationResults.macroRatio.f) / 9),
+          other: Math.round(
+            (mealCalories * calculationResults.macroRatio.o) / 4
+          ),
+        };
+        return {
+          mealSlot: mealSlotName,
+          actuals: mealTargets,
+          mealName: null, // Placeholder for AI-generated meal name
+          ingredients: [], // Placeholder for AI-generated ingredients (will be empty)
+        };
+      });
+      return { ...day, meals: meals };
+    }
+  );
+
+  displayMealPlan(calculationResults.mealPlan); // Display the plan immediately with placeholders
+  startMealNameGeneration(); // Start AI generation in background
 }
 
-function generateMealPlan() {
-  const { goal, activityStyle, activityDays, workoutTiming } = userData;
-  const { dailyPlan, macroRatio } = calculationResults;
-
+function getMealDistribution(dayType, goalKey) {
   const mealDistributions = {
     morningWorkout: {
       "Weight Loss": {
@@ -695,45 +1399,241 @@ function generateMealPlan() {
       },
     },
   };
+  return mealDistributions[dayType][goalKey];
+}
 
-  calculationResults.mealPlan = dailyPlan.map((day, dayIndex) => {
-    const currentDayIndex = dayIndex + 1;
-    let dayType = "rest";
-    if (
-      activityStyle === "Dedicated Routine" &&
-      activityDays.includes(currentDayIndex)
-    ) {
-      dayType =
-        workoutTiming === "Morning" ? "morningWorkout" : "eveningWorkout";
+async function startMealNameGeneration() {
+  isLoadingMeals = true;
+  abortController = new AbortController(); // Initialize AbortController
+  const { signal } = abortController;
+
+  const loadingBar = document.getElementById("floating-loading-bar");
+  const loadingMessage = document.getElementById("loading-message");
+  const floatingButtons = document.getElementById("floating-buttons");
+
+  // Hide floating buttons and show loading bar
+  floatingButtons.classList.add("hidden");
+  loadingBar.classList.remove("hidden"); // CRITICAL: Ensure display is not 'none'
+  loadingBar.classList.add("visible");
+
+  try {
+    // Generate meals for the first 7 days
+    let allUsedMealNames = []; // Keep track of all meals used so far across days
+    for (let i = 0; i < 7; i++) {
+      if (signal.aborted) {
+        // Check if cancelled
+        console.log("Meal generation cancelled.");
+        break;
+      }
+      loadingMessage.textContent = `Loading meals for Day ${i + 1}...`;
+      console.log(`Starting meal generation for Day ${i + 1}`);
+      const newlyGeneratedMeals = await fetchMealNamesForDay(
+        i,
+        signal,
+        allUsedMealNames
+      ); // Pass used meals
+      newlyGeneratedMeals.forEach((meal) =>
+        allUsedMealNames.push(meal.mealName)
+      ); // Add new meals to the used list
+      mealNamesLoaded[i] = true;
+      console.log(`Finished meal generation for Day ${i + 1}`);
+      updateMealPlanDisplayForDay(i); // Update UI for the loaded day
     }
 
-    const goalKey =
-      goal === "Weight Loss"
-        ? "Weight Loss"
-        : goal === "Weight Gain"
-        ? "Weight Gain"
-        : "Maintenance";
-    const mealDistribution = mealDistributions[dayType][goalKey];
+    // Reuse meals for days 8-14
+    for (let i = 7; i < 14; i++) {
+      if (signal.aborted) {
+        // Check if cancelled
+        console.log("Meal generation cancelled.");
+        break;
+      }
+      loadingMessage.textContent = `Reusing meals from Day ${
+        i - 7 + 1
+      } for Day ${i + 1}...`;
+      console.log(`Reusing meal plan from Day ${i - 7 + 1} for Day ${i + 1}`);
+      calculationResults.mealPlan[i].meals.forEach((meal, mealIndex) => {
+        meal.mealName =
+          calculationResults.mealPlan[i - 7].meals[mealIndex].mealName;
+        // No need to copy ingredients as they are no longer generated/displayed
+        meal.ingredients = []; // Ensure it's empty
+      });
+      mealNamesLoaded[i] = true;
+      updateMealPlanDisplayForDay(i); // Update UI for the reused day
+    }
+  } catch (error) {
+    if (error.name === "AbortError") {
+      console.log("Fetch aborted by user.");
+    } else {
+      console.error("Error during meal generation:", error);
+    }
+  } finally {
+    isLoadingMeals = false;
+    // Hide loading bar and show floating buttons, unless cancelled and already reset
+    if (!signal.aborted) {
+      loadingBar.classList.add("hidden"); // Hide it again when done
+      loadingBar.classList.remove("visible");
+      loadingMessage.textContent = "";
+      floatingButtons.classList.remove("hidden");
+      console.log("All meal names loaded!");
+    } else {
+      // If aborted, resetForm would have already handled UI, just ensure loading bar is hidden
+      loadingBar.classList.add("hidden");
+      loadingBar.classList.remove("visible");
+    }
+    abortController = null; // Clear controller
+  }
+}
 
-    const meals = Object.keys(mealDistribution).map((mealSlotName) => {
-      const mealCalories = day.calories * mealDistribution[mealSlotName];
-      const mealTargets = {
-        calories: Math.round(mealCalories),
-        protein: Math.round((mealCalories * macroRatio.p) / 4),
-        carbs: Math.round((mealCalories * macroRatio.c) / 4),
-        fat: Math.round((mealCalories * macroRatio.f) / 9),
-        other: Math.round((mealCalories * macroRatio.o) / 4),
-      };
+async function fetchMealNamesForDay(dayIndex, signal, mealsAlreadyUsed) {
+  // Added mealsAlreadyUsed parameter
+  const dayData = calculationResults.mealPlan[dayIndex];
+  const dietPreference = userData.diet === "No Preference" ? "" : userData.diet;
+  const activityLevel = userData.activityStyle;
+  const goal = userData.goal;
 
-      return {
-        mealSlot: mealSlotName,
-        actuals: mealTargets,
-      };
+  // Get available premium meal names for the current slot and diet
+  const availablePremiumMeals = {};
+  for (const mealSlot in premiumIndianMeals) {
+    if (premiumIndianMeals[mealSlot][dietPreference]) {
+      availablePremiumMeals[mealSlot] = premiumIndianMeals[mealSlot][
+        dietPreference
+      ].map((m) => m.name);
+    }
+  }
+
+  const mealDetailsForPrompt = dayData.meals
+    .map((meal) => {
+      // Get a list of typical ingredients for the meal slot and diet preference
+      // This is still useful for the AI to understand the *type* of meal, even if quantities aren't returned.
+      const typicalIngredients =
+        premiumIndianMeals[meal.mealSlot]?.[dietPreference]?.find(
+          (m) => m.name === meal.mealName
+        )?.ingredients || [];
+
+      return `{
+                    "mealSlot": "${meal.mealSlot}",
+                    "mealName": "${meal.mealName || "Not yet selected"}",
+                    "targetCalories": ${meal.actuals.calories},
+                    "targetProtein": ${meal.actuals.protein},
+                    "targetCarbs": ${meal.actuals.carbs},
+                    "targetFat": ${meal.actuals.fat},
+                    "typicalIngredients": [${typicalIngredients
+                      .map((ing) => `"${ing}"`)
+                      .join(", ")}]
+                }`;
+    })
+    .join(",\n");
+
+  // MODIFIED PROMPT: Removed instructions for generating ingredient quantities
+  const prompt = `Generate a list of unique, premium, healthy, and well-known Indian meal names for the following meal slots and their nutritional targets for a person with a ${dietPreference} diet, ${activityLevel} activity style, and a ${goal} goal.
+
+            For each meal slot, first, try to select a meal name directly from the following list of premium Indian meals available for that slot and dietary preference. If a suitable unique meal from the list cannot be found or if more variety is needed, you may generate a *similar type* of premium, healthy Indian meal that aligns with the style and ingredients of the provided examples.
+
+            Crucially, ensure that the selected meal names are **distinct and not repeated** across any meal slot within the current day, and also **not repeated** from the list of previously used meal names provided below. Aim for maximum variety across the entire 7-day plan.
+
+            Available Premium Indian Meals by Slot (${dietPreference}):
+            ${JSON.stringify(availablePremiumMeals, null, 2)}
+
+            Previously Used Meal Names (avoid these for new selections):
+            ${JSON.stringify(mealsAlreadyUsed, null, 2)}
+
+            Meal Slots and Targets:
+            [${mealDetailsForPrompt}]
+
+            Output Format:
+            [
+                {
+                    "mealSlot": "Breakfast",
+                    "mealName": "Protein-Packed Oatmeal Bowl"
+                },
+                {
+                    "mealSlot": "Lunch",
+                    "mealName": "Grilled Chicken with Quinoa & Veggies"
+                }
+            ]
+            `;
+
+  let chatHistory = [];
+  chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+  const payload = {
+    contents: chatHistory,
+    generationConfig: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: "ARRAY",
+        items: {
+          type: "OBJECT",
+          properties: {
+            mealSlot: { type: "STRING" },
+            mealName: { type: "STRING" },
+          },
+          propertyOrdering: ["mealSlot", "mealName"],
+        },
+      },
+    },
+  };
+  const apiKey = "AIzaSyB87ocU01RKnCfI_DlGcL_jjfSZLxik19E"; // Canvas will automatically provide this
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: signal, // Pass the signal here
     });
-    return { ...day, meals: meals };
-  });
+    const result = await response.json();
 
-  displayMealPlan(calculationResults.mealPlan);
+    if (
+      result.candidates &&
+      result.candidates.length > 0 &&
+      result.candidates[0].content &&
+      result.candidates[0].content.parts &&
+      result.candidates[0].content.parts.length > 0
+    ) {
+      const jsonString = result.candidates[0].content.parts[0].text;
+      const parsedMeals = JSON.parse(jsonString);
+
+      // Update the meal names in calculationResults.mealPlan
+      parsedMeals.forEach((aiMeal) => {
+        const mealToUpdate = dayData.meals.find(
+          (m) => m.mealSlot === aiMeal.mealSlot
+        );
+        if (mealToUpdate) {
+          mealToUpdate.mealName = aiMeal.mealName;
+          mealToUpdate.ingredients = []; // Explicitly ensure ingredients array is empty
+        }
+      });
+      return parsedMeals; // Return newly generated meals for tracking
+    } else {
+      console.error(
+        "AI response structure unexpected or content missing:",
+        result
+      );
+      // Fallback to generic names if AI fails
+      dayData.meals.forEach((meal) => {
+        meal.mealName = `${meal.mealSlot} (AI Failed)`;
+        meal.ingredients = []; // Ensure it's empty
+      });
+      return []; // Return empty array on failure
+    }
+  } catch (error) {
+    if (error.name === "AbortError") {
+      console.warn(`Fetch for Day ${dayIndex + 1} aborted.`);
+      // Do not mark as error, just let the process stop
+    } else {
+      console.error(
+        `Error fetching meal names for Day ${dayIndex + 1}:`,
+        error
+      );
+      // Fallback to generic names on error
+      dayData.meals.forEach((meal) => {
+        meal.mealName = `${meal.mealSlot} (Error)`;
+        meal.ingredients = []; // Ensure it's empty
+      });
+    }
+    throw error; // Re-throw to be caught by startMealNameGeneration's try/catch
+  }
 }
 
 function displayMealPlan(plan) {
@@ -903,9 +1803,9 @@ function displayMealPlan(plan) {
       icon.classList.toggle("rotate-180");
     });
 
+  // Initial rendering of day cards with placeholders
   const container = document.getElementById("meal-plan-list");
   container.innerHTML = "";
-
   plan.forEach((day, index) => {
     const futureDate = new Date();
     futureDate.setDate(new Date().getDate() + index);
@@ -925,6 +1825,7 @@ function displayMealPlan(plan) {
     }
 
     const dayCard = document.createElement("div");
+    dayCard.id = `day-card-${index}`; // Add ID for easy update
     dayCard.className =
       "day-card bg-white p-4 rounded-lg shadow-md cursor-pointer";
     dayCard.innerHTML = `
@@ -946,24 +1847,60 @@ function displayMealPlan(plan) {
                          </div>
                     </div>
                 `;
-    dayCard.onclick = () => showMealModal(day, futureDate);
+    dayCard.onclick = () => showMealModal(day, futureDate, index); // Pass day index
     container.appendChild(dayCard);
   });
 }
 
-function showMealModal(dayData, date) {
+// Function to update a single day's display after meals are loaded
+function updateMealPlanDisplayForDay(dayIndex) {
+  const dayCard = document.getElementById(`day-card-${dayIndex}`);
+  if (dayCard) {
+    // If the modal for this day is open, refresh its content to show loaded meal names
+    const modal = document.getElementById("meal-modal");
+    if (
+      modal.classList.contains("visible") &&
+      modal.dataset.dayIndex === String(dayIndex)
+    ) {
+      const currentDayData = calculationResults.mealPlan[dayIndex];
+      const futureDate = new Date();
+      futureDate.setDate(new Date().getDate() + dayIndex);
+      showMealModal(currentDayData, futureDate, dayIndex);
+    }
+  }
+}
+
+function showMealModal(dayData, date, dayIndex) {
   const modal = document.getElementById("meal-modal");
   const title = document.getElementById("modal-title");
   const body = document.getElementById("modal-body");
+  modal.dataset.dayIndex = dayIndex; // Store current day index in modal for updates
 
   title.textContent = `Nutritional Targets for ${date.toLocaleDateString(
     "en-US",
     { weekday: "long", month: "long", day: "numeric" }
   )}`;
 
-  let content = `<div class="space-y-3 pt-3 border-t">`;
+  let content = `<div class="space-y-4 pt-3 border-t">`;
   dayData.meals.forEach((meal) => {
-    content += `<div class="p-3 bg-gray-50 rounded-lg"><p class="font-bold text-lg text-primary-color">${meal.mealSlot}</p><div class="grid grid-cols-5 text-center text-sm my-2 gap-1"><div><p class="font-semibold">${meal.actuals.calories}</p><p class="text-xs text-muted-color">kcal</p></div><div><p class="font-semibold">${meal.actuals.protein}g</p><p class="text-xs text-muted-color">Protein</p></div><div><p class="font-semibold">${meal.actuals.carbs}g</p><p class="text-xs text-muted-color">Carbs</p></div><div><p class="font-semibold">${meal.actuals.fat}g</p><p class="text-xs text-muted-color">Fat</p></div><div><p class="font-semibold">${meal.actuals.other}g</p><p class="text-xs text-muted-color">Other</p></div></div></div>`;
+    const mealNamePart =
+      mealNamesLoaded[dayIndex] && meal.mealName
+        ? `<span class="ml-2 font-normal text-gray-700">- ${meal.mealName}</span>`
+        : `<span class="small-loader"></span>`;
+
+    // Removed ingredientsList generation and inclusion
+    content += `<div class="p-3 bg-gray-50 rounded-lg">
+                                <p class="font-bold text-lg text-primary-color flex items-center">
+                                    ${meal.mealSlot} ${mealNamePart}
+                                </p>
+                                <div class="grid grid-cols-5 text-center text-sm my-2 gap-1">
+                                    <div><p class="font-semibold">${meal.actuals.calories}</p><p class="text-xs text-muted-color">kcal</p></div>
+                                    <div><p class="font-semibold">${meal.actuals.protein}g</p><p class="text-xs text-muted-color">Protein</p></div>
+                                    <div><p class="font-semibold">${meal.actuals.carbs}g</p><p class="text-xs text-muted-color">Carbs</p></div>
+                                    <div><p class="font-semibold">${meal.actuals.fat}g</p><p class="text-xs text-muted-color">Fat</p></div>
+                                    <div><p class="font-semibold">${meal.actuals.other}g</p><p class="text-xs text-muted-color">Other</p></div>
+                                </div>
+                            </div>`;
   });
   content += `</div>`;
   body.innerHTML = content;
@@ -1130,14 +2067,20 @@ function downloadMealPlanPDF() {
     ]);
 
     day.meals.forEach((meal) => {
+      // Display both meal slot and AI-generated name if available
+      const mealName =
+        mealNamesLoaded[index] && meal.mealName
+          ? `${meal.mealSlot} - ${meal.mealName}`
+          : meal.mealSlot;
       tableData.push([
-        meal.mealSlot,
+        { content: mealName, styles: { fontStyle: "bold" } },
         `${meal.actuals.calories} kcal`,
         `${meal.actuals.protein}g`,
         `${meal.actuals.carbs}g`,
         `${meal.actuals.fat}g`,
         `${meal.actuals.other}g`,
       ]);
+      // Removed ingredient rows from PDF generation
     });
   });
 
@@ -1178,12 +2121,19 @@ function downloadMealPlanPDF() {
 }
 
 function resetForm() {
+  // Signal to abort any ongoing fetches
+  if (abortController) {
+    abortController.abort();
+  }
+
   // Clear all user data
   Object.keys(userData).forEach((key) => {
     if (Array.isArray(userData[key])) userData[key] = [];
     else userData[key] = null;
   });
   isEditing = false;
+  mealNamesLoaded.fill(false); // Reset meal loading state
+  isLoadingMeals = false; // Reset global loading flag
 
   // Clear input fields
   cardSequence.slice(0, 10).forEach((stepName) => {
@@ -1209,8 +2159,44 @@ function resetForm() {
     .forEach((card) => card.classList.remove("selected"));
   checkSaveFormValidity();
 
+  // Hide loading bar and show floating buttons (if they were hidden)
+  document.getElementById("floating-loading-bar").classList.add("hidden");
+  document.getElementById("floating-buttons").classList.remove("hidden"); // Ensure buttons are visible if they should be
+
   // Navigate back to the landing screen using navigateTo for consistent transitions
   navigateTo("landing-card");
+  closeConfirmationModal(); // Ensure confirmation modal is closed
+}
+
+// Custom Confirmation Modal Functions
+let currentConfirmCallback = null;
+
+function openConfirmationModal(message, onConfirm) {
+  const modal = document.getElementById("confirmation-modal");
+  const messageElement = document.getElementById("confirmation-message");
+  const confirmButton = document.getElementById("confirm-action-btn");
+
+  messageElement.textContent = message;
+  currentConfirmCallback = onConfirm; // Store the callback
+
+  // Remove any old event listener
+  confirmButton.removeEventListener("click", handleConfirmClick);
+  // Add new event listener
+  confirmButton.addEventListener("click", handleConfirmClick);
+
+  modal.classList.add("visible");
+}
+
+function handleConfirmClick() {
+  if (currentConfirmCallback) {
+    currentConfirmCallback(); // Execute the stored callback
+  }
+  closeConfirmationModal(); // Close modal after action
+}
+
+function closeConfirmationModal() {
+  document.getElementById("confirmation-modal").classList.remove("visible");
+  currentConfirmCallback = null; // Clear the callback
 }
 
 window.onload = () => {
@@ -1219,6 +2205,8 @@ window.onload = () => {
   createCustomSelect("activityStyle", "activityStyle-options");
   createCustomSelect("activityIntensity", "activityIntensity-options");
   createCustomSelect("workoutTiming", "workoutTiming-options");
+  // Modified: Only Vegetarian and Non-Vegetarian options
+  options.diet = ["Vegetarian", "Non-Vegetarian"];
   createCustomSelect("diet", "diet-options");
 
   document
