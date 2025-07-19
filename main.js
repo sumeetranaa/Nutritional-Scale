@@ -1229,11 +1229,7 @@ function calculateDailyTargets() {
     if (activityStyle === "Casual Activity") {
       const activeDaysCount = parseInt(activityFrequency);
       const restDaysCount = 14 - activeDaysCount;
-      const intensityMultiplier = {
-        "High Intensity": 1.8,
-        "Moderate Intensity": 1.6,
-        "Low Intensity": 1.4,
-      }[activityIntensity];
+      const intensityMultiplier = tdeeMultipliers[activityIntensity];
       avgMultiplier =
         (intensityMultiplier * activeDaysCount + 1.3 * restDaysCount) / 14;
     }
