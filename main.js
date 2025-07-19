@@ -43,6 +43,12 @@ let mealNamesLoaded = new Array(14).fill(false); // Track loading state for each
 let isLoadingMeals = false; // Global flag for meal loading
 let abortController = null; // To allow cancellation of fetch requests
 
+// >>> START: GOOGLE SHEET INTEGRATION VARIABLES <<<
+// IMPORTANT: Replace 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE' with your actual deployed Apps Script URL.
+const GOOGLE_SHEET_WEB_APP_URL =
+  "https://script.google.com/macros/s/AKfycbykLCidVuBFcoSuMRHri4Hcvs8pWln--1U4I6H3vg9g386wbzT9TGg_E_16Bemd9znv/exec";
+// >>> END: GOOGLE SHEET INTEGRATION VARIABLES <<<
+
 // Premium Indian Meals Data (Expanded with typical ingredients for AI reference)
 const premiumIndianMeals = {
   Breakfast: {
@@ -1462,7 +1468,7 @@ async function startMealNameGeneration() {
     }
   } catch (error) {
     if (error.name === "AbortError") {
-      console.log("Fetch aborted by user.");
+      console.log("Meal generation cancelled.");
     } else {
       console.error("Error during meal generation:", error);
     }
@@ -1928,11 +1934,73 @@ function checkSaveFormValidity() {
   downloadBtn.disabled = !(name && isEmailValid && interest);
 }
 
-function downloadMealPlanPDF() {
+// >>> START: GOOGLE SHEET INTEGRATION FUNCTION <<<
+async function submitDataAndDownloadPDF() {
+  const userName = document.getElementById("user-name").value;
+  const userEmail = document.getElementById("user-email").value;
+  // MODIFIED: Get the value directly from the checked radio button which now has 'Interested' or 'Not Interested'
+  const deliveryInterest =
+    document.querySelector('input[name="delivery-interest"]:checked')?.value ||
+    "Not Answered";
+  const savePlanMessage = document.getElementById("save-plan-message");
+  const downloadBtn = document.getElementById("download-pdf-btn");
+
+  // Disable button and show loading indicator
+  downloadBtn.disabled = true;
+  savePlanMessage.textContent = "Submitting data...";
+  savePlanMessage.className = "text-sm mt-2 text-center text-gray-600";
+
+  // ADDED: Include more user data from the userData object
+  const formData = {
+    Name: userName,
+    Email: userEmail,
+    DeliveryService: deliveryInterest,
+    Timestamp: new Date().toLocaleString(),
+    Gender: userData.gender, // Added
+    Age: userData.age, // Added
+    Weight: userData.weight, // Added
+    Goal: userData.goal, // Added
+  };
+
+  try {
+    const response = await fetch(GOOGLE_SHEET_WEB_APP_URL, {
+      method: "POST",
+      mode: "no-cors", // Required for cross-origin requests to Apps Script
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams(formData).toString(),
+    });
+
+    // Since we use 'no-cors', we can't directly read the response status or body.
+    // We assume success if no network error occurs.
+    // For more robust error handling, you'd need a proxy or a different backend setup.
+    console.log(
+      "Data sent to Google Sheet. Response (if any, due to no-cors):",
+      response
+    );
+
+    savePlanMessage.textContent =
+      "Data submitted successfully! Generating PDF...";
+    savePlanMessage.className = "text-sm mt-2 text-center text-green-600";
+
+    // Proceed with PDF download
+    downloadMealPlanPDF(userName);
+  } catch (error) {
+    console.error("Error submitting data to Google Sheet:", error);
+    savePlanMessage.textContent =
+      "Failed to submit data. Please try again or check console for details.";
+    savePlanMessage.className = "text-sm mt-2 text-center text-red-600";
+    downloadBtn.disabled = false; // Re-enable button on error
+  }
+}
+// >>> END: GOOGLE SHEET INTEGRATION FUNCTION <<<
+
+function downloadMealPlanPDF(userName) {
   const doc = new jsPDF();
   const plan = calculationResults.mealPlan;
   const today = new Date();
-  const userName = document.getElementById("user-name").value;
+  // userName is now passed as an argument
 
   // --- Header Function ---
   const addHeader = (doc) => {
@@ -2101,13 +2169,14 @@ function downloadMealPlanPDF() {
       textColor: [255, 255, 255],
       fontStyle: "bold",
     },
+    // MODIFIED: Further adjusted column widths to ensure table fits the page
     columnStyles: {
-      0: { cellWidth: 35 },
-      1: { cellWidth: 25 },
-      2: { cellWidth: 25 },
-      3: { cellWidth: 25 },
-      4: { cellWidth: 25 },
-      5: { cellWidth: 25 },
+      0: { cellWidth: 28 }, // Meal
+      1: { cellWidth: 23 }, // Calories
+      2: { cellWidth: 23 }, // Protein
+      3: { cellWidth: 23 }, // Carbs
+      4: { cellWidth: 23 }, // Fat
+      5: { cellWidth: 23 }, // Other
     },
   });
 
@@ -2157,6 +2226,7 @@ function resetForm() {
   document
     .querySelectorAll(".delivery-option-card")
     .forEach((card) => card.classList.remove("selected"));
+  document.getElementById("save-plan-message").textContent = ""; // Clear message
   checkSaveFormValidity();
 
   // Hide loading bar and show floating buttons (if they were hidden)
@@ -2222,8 +2292,9 @@ window.onload = () => {
         .querySelectorAll(".delivery-option-card")
         .forEach((c) => c.classList.remove("selected"));
       card.classList.add("selected");
+      // MODIFIED: Set the correct radio button value based on the card's data-value
       document.getElementById(
-        card.dataset.value === "Yes" ? "delivery-yes" : "delivery-no"
+        card.dataset.value === "Interested" ? "delivery-yes" : "delivery-no"
       ).checked = true;
       checkSaveFormValidity();
     });
