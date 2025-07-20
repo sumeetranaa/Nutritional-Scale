@@ -1240,8 +1240,8 @@ function calculateDailyTargets() {
   }
 
   const goalAdjustments = {
-    "Weight Loss": -700,
-    "Weight Gain": 700,
+    "Weight Loss": -500,
+    "Weight Gain": 500,
     Maintenance: 0,
   };
   const calorieAdjustment = goalAdjustments[goal];
